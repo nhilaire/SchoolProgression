@@ -1,0 +1,74 @@
+<div class="container">
+  <h2>Liste des activités</h2>
+  <p><i>(on peut modifier l'ordre via drag & drop)</i></p>
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+  <table class="eleves-table">
+    <thead>
+      <tr>
+  <th>Libellé court</th>
+  <th>Libellé long</th>
+  <th>Catégorie</th>
+  <th>Ordre</th>
+  <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody cdkDropList (cdkDropListDropped)="onDrop($event)">
+      @for (activite of sortedActivites; track activite.id) {
+        <tr cdkDrag>
+          @if (selected() && selected()?.id === activite.id) {
+            <td>
+              <input [formControl]="editLibelleCourt" placeholder="Libellé court" required />
+            </td>
+            <td>
+              <input [formControl]="editLibelleLong" placeholder="Libellé long" required />
+            </td>
+            <td>
+              <select [formControl]="editCategorieId" required>
+                <option value="" disabled>Choisir une catégorie</option>
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.libelle }}</option>
+                }
+              </select>
+            </td>
+            <td>
+              <!-- L'ordre ne peut être modifié que par drag & drop -->
+              {{ selected()?.ordre }}
+            </td>
+            <td>
+              <button class="action-btn" (click)="save()">Enregistrer</button>
+              <button class="action-btn" (click)="cancel()">Annuler</button>
+            </td>
+          }
+          @else {
+            <td>{{ activite.libelleCourt }}</td>
+            <td>{{ activite.libelleLong }}</td>
+            <td>
+              {{ getCategorieLibelle(activite.categorieId) }}
+            </td>
+            <td>{{ activite.ordre }}</td>
+            <td>
+              <button class="action-btn" (click)="select(activite)">Modifier</button>
+              <button class="action-btn" (click)="deleteActivite(activite.id)">Supprimer</button>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <h3>Ajouter une activité</h3>
+  <div class="add-form">
+    <input [formControl]="addLibelleCourt" placeholder="Libellé court" required />
+    <input [formControl]="addLibelleLong" placeholder="Libellé long" required />
+    <select [formControl]="addCategorieId" required>
+      <option value="" disabled selected>Choisir une catégorie</option>
+      @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.libelle }}</option>
+      }
+    </select>
+  <!-- Le champ 'ordre' est supprimé, il sera attribué automatiquement -->
+    <button type="button" (click)="add()">Ajouter</button>
+  </div>
+</div>

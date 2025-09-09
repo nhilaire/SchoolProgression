@@ -1,0 +1,54 @@
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.eleves-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+.eleves-table th, .eleves-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+}
+.eleves-table th {
+  background: #e0e0e0;
+}
+.add-form, .edit-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.add-form input, .edit-form input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #0056b3;
+}
+.error {
+  color: #ff4136;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+.action-btn {
+  margin-right: 0.5rem;
+}
+.action-btn:last-child {
+  margin-right: 0;
+}

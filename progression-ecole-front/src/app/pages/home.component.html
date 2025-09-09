@@ -1,0 +1,70 @@
+<div class="periode-select">
+  <span>Période :</span>
+  @for (periode of ['P1','P2','P3','P4','P5']; track periode) {
+    <label class="periode-label periode-{{periode}}">
+      <input type="radio" name="periode" [value]="periode" [checked]="selectedPeriode() === periode" (change)="selectedPeriode.set(periode)" title="Choisir la période {{ periode }}" /> {{ periode }}
+    </label>
+  }
+  <button class="save-btn secondary-btn" (click)="savePeriodeActivites()">Enregistrer</button>
+  @if (notification()) {
+    <div [ngClass]="notificationColor() === 'success' ? 'notif-success' : 'notif-error'">
+      {{ notification() }}
+    </div>
+  }
+</div>
+
+<div class="generate-block">
+  <button class="generate-btn" (click)="generateDocx()">Générer le document pour tous les élèves</button>
+</div>
+
+
+<div class="status small-status" [ngClass]="status()">
+  @if (status() === 'ko') {
+    <span class="ko">Connexion KO</span>
+  }
+  @if (status() === null) {
+    <span>Vérification de la connexion...</span>
+  }
+</div>
+
+<div class="eleve-select">
+  <span>Élève :</span>
+  <select [(ngModel)]="selectedEleve" title="Sélectionner un élève">
+    <option [ngValue]="null">-- Sélectionner un élève --</option>
+    @for (eleve of eleves(); track eleve.id) {
+      <option [ngValue]="eleve.id">{{ eleve.nom }} {{ eleve.prenom }}</option>
+    }
+  </select>
+  <style>
+    .eleve-select {
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</div>
+
+
+@if (categories().length > 0) {
+  <div class="tabs">
+    @for (cat of categories(); track cat.id) {
+      <button [ngClass]="{active: selectedTab() === cat.id}" (click)="selectedTab.set(cat.id)">{{ cat.libelle }}</button>
+    }
+  </div>
+
+  <div class="tab-content">
+    @if (selectedTab()) {
+      @if (getActivitesForSelectedCategorie().length > 0) {
+        <div class="activites-list">
+          @for (act of getActivitesForSelectedCategorie(); track act.id) {
+            <div class="activite-item">
+              <input type="checkbox" [id]="'activite-' + act.id" [value]="act.id" [(ngModel)]="selectedActivites[act.id]" title="Sélectionner l'activité {{ act.libelleCourt }}" />
+              <label [for]="'activite-' + act.id" [ngClass]="getPeriodeForActivite(act.id) ? 'activite-highlight-' + getPeriodeForActivite(act.id) : ''">{{ act.libelleCourt }} - {{ act.libelleLong }}</label>
+            </div>
+          }
+        </div>
+      }
+      @else {
+        <div class="no-activite">pas d'activités encore ...</div>
+      }
+    }
+  </div>
+}

@@ -1,0 +1,9 @@
+<nav class="navbar">
+  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+  <a routerLink="/eleves" routerLinkActive="active">Élèves</a>
+  <a routerLink="/categories" routerLinkActive="active">Catégories</a>
+  <a routerLink="/activites" routerLinkActive="active">Activités</a>
+</nav>
+<main>
+  <router-outlet></router-outlet>
+</main>

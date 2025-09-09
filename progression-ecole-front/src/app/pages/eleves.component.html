@@ -1,0 +1,50 @@
+<div class="container">
+  <h2>Liste des élèves</h2>
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+  <table class="eleves-table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (eleve of eleves(); track eleve.id) {
+        <tr>
+          @if (selected() && selected()?.id === eleve.id) {
+            <td>
+              <input [formControl]="editNom" placeholder="Nom" required />
+            </td>
+            <td>
+              <input [formControl]="editPrenom" placeholder="Prénom" required />
+            </td>
+            <td>
+              <button class="action-btn" (click)="save()">Enregistrer</button>
+              <button class="action-btn" (click)="cancel()">Annuler</button>
+            </td>
+          }
+          @else {
+            <td>{{ eleve.nom }}</td>
+            <td>{{ eleve.prenom }}</td>
+            <td>
+              <button class="action-btn" (click)="select(eleve)">Modifier</button>
+              <button class="action-btn" (click)="deleteEleve(eleve.id)">Supprimer</button>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <h3>Ajouter un élève</h3>
+  <div class="add-form">
+    <input [formControl]="addNom" placeholder="Nom" required />
+    <input [formControl]="addPrenom" placeholder="Prénom" required (keydown.enter)="add()" />
+    <button type="button" (click)="add()">Ajouter</button>
+  </div>
+
+  <!-- Le formulaire de modification est maintenant affiché dans la ligne du tableau -->
+</div>

@@ -1,0 +1,42 @@
+<div class="container">
+  <h2>Liste des catégories</h2>
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+  <table class="eleves-table">
+    <thead>
+      <tr>
+        <th>Libellé</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (categorie of categories(); track categorie.id) {
+        <tr>
+          @if (selected() && selected()?.id === categorie.id) {
+            <td>
+              <input [formControl]="editLibelle" placeholder="Libellé" required />
+            </td>
+            <td>
+              <button class="action-btn" (click)="save()">Enregistrer</button>
+              <button class="action-btn" (click)="cancel()">Annuler</button>
+            </td>
+          }
+          @else {
+            <td>{{ categorie.libelle }}</td>
+            <td>
+              <button class="action-btn" (click)="select(categorie)">Modifier</button>
+              <button class="action-btn" (click)="deleteCategorie(categorie.id)">Supprimer</button>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <h3>Ajouter une catégorie</h3>
+  <div class="add-form">
+    <input [formControl]="addLibelle" placeholder="Libellé" required (keydown.enter)="add()" />
+    <button type="button" (click)="add()">Ajouter</button>
+  </div>
+</div>

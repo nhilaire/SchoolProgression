@@ -54,10 +54,27 @@
     @if (selectedTab()) {
       @if (getActivitesForSelectedCategorie().length > 0) {
         <div class="activites-list">
-          @for (act of getActivitesForSelectedCategorie(); track act.id) {
-            <div class="activite-item">
-              <input type="checkbox" [id]="'activite-' + act.id" [value]="act.id" [(ngModel)]="selectedActivites[act.id]" title="Sélectionner l'activité {{ act.libelleCourt }}" />
-              <label [for]="'activite-' + act.id" [ngClass]="getPeriodeForActivite(act.id) ? 'activite-highlight-' + getPeriodeForActivite(act.id) : ''">{{ act.libelleCourt }} - {{ act.libelleLong }}</label>
+          @for (activite of getActivitesForSelectedCategorie(); track activite.id) {
+            <div class="activite-item" [ngClass]="getActiviteItemClass(activite)">
+              @if (activite.estRegroupement) {
+                <!-- Regroupement - non cochable -->
+                <div class="regroupement-header">
+                  <span class="regroupement-icon">📁</span>
+                  <span class="regroupement-label">{{ activite.libelleCourt }} - {{ activite.libelleLong }}</span>
+                </div>
+                <!-- Activités enfants -->
+                @for (enfant of getEnfantsForActivite(activite.id); track enfant.id) {
+                  <div class="activite-enfant">
+                    <span class="indent">└─</span>
+                    <input type="checkbox" [id]="'activite-' + enfant.id" [value]="enfant.id" [(ngModel)]="selectedActivites[enfant.id]" title="Sélectionner l'activité {{ enfant.libelleCourt }}" />
+                    <label [for]="'activite-' + enfant.id" [ngClass]="getPeriodeForActivite(enfant.id) ? 'activite-highlight-' + getPeriodeForActivite(enfant.id) : ''">{{ enfant.libelleCourt }} - {{ enfant.libelleLong }}</label>
+                  </div>
+                }
+              } @else if (!activite.parentId) {
+                <!-- Activité isolée -->
+                <input type="checkbox" [id]="'activite-' + activite.id" [value]="activite.id" [(ngModel)]="selectedActivites[activite.id]" title="Sélectionner l'activité {{ activite.libelleCourt }}" />
+                <label [for]="'activite-' + activite.id" [ngClass]="getPeriodeForActivite(activite.id) ? 'activite-highlight-' + getPeriodeForActivite(activite.id) : ''">{{ activite.libelleCourt }} - {{ activite.libelleLong }}</label>
+              }
             </div>
           }
         </div>

@@ -25,4 +25,24 @@ export class ActiviteService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  getEnfants(parentId: string): Observable<Activite[]> {
+    return this.http.get<Activite[]>(`${this.baseUrl}/enfants/${parentId}`);
+  }
+
+  getRegroupements(): Observable<Activite[]> {
+    return this.http.get<Activite[]>(`${this.baseUrl}/regroupements`);
+  }
+
+  getActivitesIsolees(): Observable<Activite[]> {
+    return this.http.get<Activite[]>(`${this.baseUrl}/isolees`);
+  }
+
+  createRegroupement(regroupement: Activite): Observable<Activite> {
+    return this.http.post<Activite>(`${this.baseUrl}/regroupement`, regroupement);
+  }
+
+  addActiviteToRegroupement(activite: Activite): Observable<Activite> {
+    return this.http.post<Activite>(`${this.baseUrl}/activite-enfant`, activite);
+  }
 }

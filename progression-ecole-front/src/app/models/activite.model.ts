@@ -4,4 +4,6 @@ export interface Activite {
   libelleLong: string;
   categorieId: string;
   ordre: number;
+  estRegroupement: boolean;
+  parentId?: string | null;
 }

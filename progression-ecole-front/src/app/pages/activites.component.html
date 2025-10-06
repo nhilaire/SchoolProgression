@@ -1,74 +1,152 @@
 <div class="container">
-  <h2>Liste des activités</h2>
-  <p><i>(on peut modifier l'ordre via drag & drop)</i></p>
+  <h2>Gestion des activités</h2>
+  
   @if (error()) {
     <div class="error">{{ error() }}</div>
   }
-  <table class="eleves-table">
-    <thead>
-      <tr>
-  <th>Libellé court</th>
-  <th>Libellé long</th>
-  <th>Catégorie</th>
-  <th>Ordre</th>
-  <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody cdkDropList (cdkDropListDropped)="onDrop($event)">
-      @for (activite of sortedActivites; track activite.id) {
-        <tr cdkDrag>
-          @if (selected() && selected()?.id === activite.id) {
-            <td>
-              <input [formControl]="editLibelleCourt" placeholder="Libellé court" required />
-            </td>
-            <td>
-              <input [formControl]="editLibelleLong" placeholder="Libellé long" required />
-            </td>
-            <td>
-              <select [formControl]="editCategorieId" required>
+
+  <!-- Structure hiérarchique des activités -->
+  <div class="activites-hierarchy">
+    <h3>Structure des activités</h3>
+    
+    <!-- Regroupements et leurs activités -->
+    @for (regroupement of regroupements(); track regroupement.id) {
+      <div class="regroupement">
+        <div class="regroupement-header" [class.editing]="selected()?.id === regroupement.id">
+          @if (selected() && selected()?.id === regroupement.id) {
+            <div class="edit-form">
+              <input [formControl]="editLibelleCourt" placeholder="Libellé court du regroupement" />
+              <input [formControl]="editLibelleLong" placeholder="Libellé long du regroupement" />
+              <select [formControl]="editCategorieId">
                 <option value="" disabled>Choisir une catégorie</option>
                 @for (cat of categories(); track cat.id) {
                   <option [value]="cat.id">{{ cat.libelle }}</option>
                 }
               </select>
-            </td>
-            <td>
-              <!-- L'ordre ne peut être modifié que par drag & drop -->
-              {{ selected()?.ordre }}
-            </td>
-            <td>
-              <button class="action-btn" (click)="save()">Enregistrer</button>
-              <button class="action-btn" (click)="cancel()">Annuler</button>
-            </td>
+              <button class="btn-save" (click)="save()">Enregistrer</button>
+              <button class="btn-cancel" (click)="cancel()">Annuler</button>
+            </div>
+          } @else {
+            <div class="regroupement-info">
+              <span class="regroupement-icon">📁</span>
+              <span class="libelle">{{ regroupement.libelleCourt }} - {{ regroupement.libelleLong }}</span>
+              <span class="categorie">({{ getCategorieLibelle(regroupement.categorieId) }})</span>
+              <div class="actions">
+                <button class="btn-edit" (click)="select(regroupement)">Modifier</button>
+                <button class="btn-delete" (click)="deleteActivite(regroupement.id)">Supprimer</button>
+                <button class="btn-add-child" (click)="startAddingToRegroupement(regroupement.id)">+ Activité</button>
+              </div>
+            </div>
           }
-          @else {
-            <td>{{ activite.libelleCourt }}</td>
-            <td>{{ activite.libelleLong }}</td>
-            <td>
-              {{ getCategorieLibelle(activite.categorieId) }}
-            </td>
-            <td>{{ activite.ordre }}</td>
-            <td>
-              <button class="action-btn" (click)="select(activite)">Modifier</button>
-              <button class="action-btn" (click)="deleteActivite(activite.id)">Supprimer</button>
-            </td>
+        </div>
+        
+        <!-- Activités enfants -->
+        <div class="activites-enfants">
+          @for (enfant of getEnfants(regroupement.id); track enfant.id) {
+            <div class="activite-enfant" [class.editing]="selected()?.id === enfant.id">
+              @if (selected() && selected()?.id === enfant.id) {
+                <div class="edit-form">
+                  <span class="indent">└─</span>
+                  <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
+                  <input [formControl]="editLibelleLong" placeholder="Libellé long" />
+                  <button class="btn-save" (click)="save()">Enregistrer</button>
+                  <button class="btn-cancel" (click)="cancel()">Annuler</button>
+                </div>
+              } @else {
+                <div class="activite-info">
+                  <span class="indent">└─</span>
+                  <span class="libelle">{{ enfant.libelleCourt }} - {{ enfant.libelleLong }}</span>
+                  <div class="actions">
+                    <button class="btn-edit" (click)="select(enfant)">Modifier</button>
+                    <button class="btn-delete" (click)="deleteActivite(enfant.id)">Supprimer</button>
+                  </div>
+                </div>
+              }
+            </div>
           }
-        </tr>
-      }
-    </tbody>
-  </table>
+          
+          <!-- Formulaire d'ajout d'activité dans le regroupement -->
+          @if (addingToRegroupement() === regroupement.id) {
+            <div class="add-activite-form">
+              <span class="indent">└─</span>
+              <input [formControl]="addLibelleCourt" placeholder="Libellé court" />
+              <input [formControl]="addLibelleLong" placeholder="Libellé long" />
+              <button class="btn-save" (click)="addActiviteToRegroupement(regroupement.id)">Ajouter</button>
+              <button class="btn-cancel" (click)="cancelAddingToRegroupement()">Annuler</button>
+            </div>
+          }
+        </div>
+      </div>
+    }
 
-  <h3>Ajouter une activité</h3>
-  <div class="add-form">
-    <input [formControl]="addLibelleCourt" placeholder="Libellé court" required />
-    <input [formControl]="addLibelleLong" placeholder="Libellé long" required />
-    <select [formControl]="addCategorieId" required>
-      <option value="" disabled selected>Choisir une catégorie</option>
-      @for (cat of categories(); track cat.id) {
-        <option [value]="cat.id">{{ cat.libelle }}</option>
+    <!-- Activités isolées -->
+    <div class="activites-isolees">
+      <h4>Activités isolées</h4>
+      @for (activite of activitesIsolees(); track activite.id) {
+        <div class="activite-isolee" [class.editing]="selected()?.id === activite.id">
+          @if (selected() && selected()?.id === activite.id) {
+            <div class="edit-form">
+              <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
+              <input [formControl]="editLibelleLong" placeholder="Libellé long" />
+              <select [formControl]="editCategorieId">
+                <option value="" disabled>Choisir une catégorie</option>
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.libelle }}</option>
+                }
+              </select>
+              <button class="btn-save" (click)="save()">Enregistrer</button>
+              <button class="btn-cancel" (click)="cancel()">Annuler</button>
+            </div>
+          } @else {
+            <div class="activite-info">
+              <span class="activite-icon">📄</span>
+              <span class="libelle">{{ activite.libelleCourt }} - {{ activite.libelleLong }}</span>
+              <span class="categorie">({{ getCategorieLibelle(activite.categorieId) }})</span>
+              <div class="actions">
+                <button class="btn-edit" (click)="select(activite)">Modifier</button>
+                <button class="btn-delete" (click)="deleteActivite(activite.id)">Supprimer</button>
+              </div>
+            </div>
+          }
+        </div>
       }
-    </select>
-  <!-- Le champ 'ordre' est supprimé, il sera attribué automatiquement -->
-    <button type="button" (click)="add()">Ajouter</button>
+    </div>
+  </div>
+
+  <!-- Formulaires d'ajout -->
+  <div class="add-forms">
+    <h3>Ajouter</h3>
+    
+    <!-- Ajouter un regroupement -->
+    <div class="add-regroupement">
+      <h4>Nouveau regroupement</h4>
+      <div class="form-row">
+        <input [formControl]="addRegroupementLibelleCourt" placeholder="Libellé court du regroupement" />
+        <input [formControl]="addRegroupementLibelleLong" placeholder="Libellé long du regroupement" />
+        <select [formControl]="addRegroupementCategorieId">
+          <option value="" disabled selected>Choisir une catégorie</option>
+          @for (cat of categories(); track cat.id) {
+            <option [value]="cat.id">{{ cat.libelle }}</option>
+          }
+        </select>
+        <button class="btn-add" (click)="addRegroupement()">Créer regroupement</button>
+      </div>
+    </div>
+
+    <!-- Ajouter une activité isolée -->
+    <div class="add-activite-isolee">
+      <h4>Nouvelle activité isolée</h4>
+      <div class="form-row">
+        <input [formControl]="addLibelleCourt" placeholder="Libellé court" />
+        <input [formControl]="addLibelleLong" placeholder="Libellé long" />
+        <select [formControl]="addCategorieId">
+          <option value="" disabled selected>Choisir une catégorie</option>
+          @for (cat of categories(); track cat.id) {
+            <option [value]="cat.id">{{ cat.libelle }}</option>
+          }
+        </select>
+        <button class="btn-add" (click)="addActiviteIsolee()">Ajouter activité</button>
+      </div>
+    </div>
   </div>
 </div>

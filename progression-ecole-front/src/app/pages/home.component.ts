@@ -153,4 +153,18 @@ export class HomeComponent {
     if (!catId) return [];
     return this.activites().filter(a => a.categorieId === catId);
   }
+
+  getEnfantsForActivite(parentId: string): Activite[] {
+    return this.activites().filter(a => a.parentId === parentId).sort((a, b) => a.ordre - b.ordre);
+  }
+
+  getActiviteItemClass(activite: Activite): string {
+    if (activite.estRegroupement) {
+      return 'regroupement-item';
+    } else if (activite.parentId) {
+      return 'activite-enfant-item';
+    } else {
+      return 'activite-isolee-item';
+    }
+  }
 }

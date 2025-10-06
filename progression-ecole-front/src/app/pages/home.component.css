@@ -132,3 +132,87 @@
   color: #ff4136;
   font-weight: bold;
 }
+
+/* Styles pour les regroupements */
+.activite-item {
+  margin-bottom: 0.5rem;
+}
+
+.regroupement-item {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.regroupement-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.regroupement-icon {
+  font-size: 1.1rem;
+}
+
+.regroupement-label {
+  flex: 1;
+}
+
+.activite-enfant {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+  margin-bottom: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+.activite-enfant input[type="checkbox"] {
+  margin: 0;
+}
+
+.activite-enfant label {
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.activite-enfant label:hover {
+  background: #e9ecef;
+}
+
+.indent {
+  color: #6c757d;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.activite-isolee-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.activite-isolee-item:hover {
+  background: #f8f9fa;
+}
+
+.activite-isolee-item input[type="checkbox"] {
+  margin: 0;
+}
+
+.activite-isolee-item label {
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  flex: 1;
+}

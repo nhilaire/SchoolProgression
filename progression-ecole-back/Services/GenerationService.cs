@@ -31,36 +31,75 @@ namespace ProgressionEcole.Services
             var finalPath  = string.Format(_templatePath, periode);
             File.Copy(finalPath, tempFile, true);
 
-            using (var doc = WordprocessingDocument.Open(tempFile, true))
+            try
             {
-                var body = doc.MainDocumentPart.Document.Body;
-
-                for (int i = 0; i < eleves.Count; i++)
+                using (var doc = WordprocessingDocument.Open(tempFile, true))
                 {
-                    var numeroEleve = (i + 1).ToString("D2");
-                    var eleve = eleves[i];
+                    var body = doc.MainDocumentPart?.Document?.Body;
+                    if (body == null) 
+                    {
+                        var emptyContent = File.ReadAllBytes(tempFile);
+                        File.Delete(tempFile);
+                        return emptyContent;
+                    }
 
-                    var activitesIds = _periodeRepo.GetAll().FirstOrDefault(x => x.Periode == periode && x.EleveId == eleve.Id)?.ActiviteIds;
-                    var activiteLibelles = activitesIds
-                        .Select(id => _activiteRepo.GetById(id)?.LibelleLong ?? "")
-                        .Where(lib => !string.IsNullOrWhiteSpace(lib))
-                        .OrderBy(lib => lib)
-                        .ToList();
+                    for (int i = 0; i < eleves.Count; i++)
+                    {
+                        var numeroEleve = (i + 1).ToString("D2");
+                        var eleve = eleves[i];
 
-                    var prenomParaOrig = body.Descendants<Paragraph>().FirstOrDefault(p => p.InnerText.Contains($"PRENOM{numeroEleve}"));
-                    var prenomRunProps = prenomParaOrig?.Descendants<RunProperties>().FirstOrDefault();
+                        var activitesIds = _periodeRepo.GetAll().FirstOrDefault(x => x.Periode == periode && x.EleveId == eleve.Id)?.ActiviteIds;
+                        var activiteLibelles = activitesIds?
+                            .Select(id => _activiteRepo.GetById(id))
+                            .Where(activite => activite != null && !activite.EstRegroupement) // Filtrer seulement les activités réelles
+                            .Select(activite => FormatActiviteLibelle(activite!))
+                            .Where(lib => !string.IsNullOrWhiteSpace(lib))
+                            .OrderBy(lib => lib)
+                            .ToList() ?? new List<string>();
 
-                    ReplaceText(body, $"PRENOM{numeroEleve}", eleve.Prenom);
-                    ReplaceList(body, $"LISTE{numeroEleve}", activiteLibelles, prenomRunProps);
+                        var prenomParaOrig = body.Descendants<Paragraph>().FirstOrDefault(p => p.InnerText.Contains($"PRENOM{numeroEleve}"));
+                        var prenomRunProps = prenomParaOrig?.Descendants<RunProperties>().FirstOrDefault();
+
+                        ReplaceText(body, $"PRENOM{numeroEleve}", eleve.Prenom);
+                        ReplaceList(body, $"LISTE{numeroEleve}", activiteLibelles, prenomRunProps);
+                    }
+
+                    doc.MainDocumentPart?.Document?.Save();
                 }
 
-                doc.MainDocumentPart.Document.Save();
-
+                var content = File.ReadAllBytes(tempFile);
+                return content;
             }
+            finally
+            {
+                if (File.Exists(tempFile))
+                    File.Delete(tempFile);
+            }
+        }
 
-            var content = File.ReadAllBytes(tempFile);
-            File.Delete(tempFile);
-            return content;
+        /// <summary>
+        /// Formate le libellé d'une activité, en incluant le contexte du regroupement si nécessaire
+        /// </summary>
+        private string FormatActiviteLibelle(Activite activite)
+        {
+            if (string.IsNullOrWhiteSpace(activite.ParentId))
+            {
+                // Activité isolée
+                return activite.LibelleLong;
+            }
+            else
+            {
+                // Activité dans un regroupement - inclure le nom du regroupement
+                var regroupement = _activiteRepo.GetById(activite.ParentId);
+                if (regroupement != null)
+                {
+                    return $"{regroupement.LibelleLong} - {activite.LibelleLong}";
+                }
+                else
+                {
+                    return activite.LibelleLong;
+                }
+            }
         }
 
         private void ReplaceText(Body body, string placeholder, string value)
@@ -72,7 +111,7 @@ namespace ProgressionEcole.Services
             }
         }
 
-        private void ReplaceList(Body body, string placeholder, List<string> items, RunProperties prenomRunProps)
+        private void ReplaceList(Body body, string placeholder, List<string> items, RunProperties? prenomRunProps)
         {
             var para = body.Descendants<Paragraph>().FirstOrDefault(p => p.InnerText.Contains(placeholder));
             if (para != null && para.Parent != null)

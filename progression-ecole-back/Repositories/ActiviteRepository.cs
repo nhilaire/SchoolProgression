@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Linq;
 using ProgressionEcole.Models;
 
 namespace ProgressionEcole.Repositories
@@ -58,8 +59,39 @@ namespace ProgressionEcole.Repositories
         {
             lock (_activites)
             {
+                // Si on supprime un regroupement, supprimer aussi ses enfants
+                var activite = _activites.FirstOrDefault(a => a.Id == id);
+                if (activite?.EstRegroupement == true)
+                {
+                    _activites.RemoveAll(a => a.ParentId == id);
+                }
+                
                 _activites.RemoveAll(a => a.Id == id);
                 Save();
+            }
+        }
+
+        public List<Activite> GetEnfants(string parentId)
+        {
+            lock (_activites)
+            {
+                return _activites.Where(a => a.ParentId == parentId).OrderBy(a => a.Ordre).ToList();
+            }
+        }
+
+        public List<Activite> GetRegroupements()
+        {
+            lock (_activites)
+            {
+                return _activites.Where(a => a.EstRegroupement).OrderBy(a => a.Ordre).ToList();
+            }
+        }
+
+        public List<Activite> GetActivitesIsolees()
+        {
+            lock (_activites)
+            {
+                return _activites.Where(a => !a.EstRegroupement && a.ParentId == null).OrderBy(a => a.Ordre).ToList();
             }
         }
 

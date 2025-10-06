@@ -1,56 +1,206 @@
 .container {
-  max-width: 700px;
+  max-width: 900px;
   margin: 2rem auto;
   padding: 2rem;
   background: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-.eleves-table {
-  width: 100%;
-  border-collapse: collapse;
+
+.activites-hierarchy {
   margin-bottom: 2rem;
 }
-.eleves-table th, .eleves-table td {
+
+.regroupement {
+  margin-bottom: 1.5rem;
   border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: white;
 }
-.eleves-table th {
-  background: #e0e0e0;
+
+.regroupement-header {
+  background: #e8f4f8;
+  padding: 1rem;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #ddd;
 }
-.add-form, .edit-form {
+
+.regroupement-info, .activite-info {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 0.5rem;
 }
-.add-form input, .edit-form input, .add-form select, .edit-form select {
-  flex: 1;
-  padding: 0.5rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-button {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-button:hover {
-  background: #0056b3;
-}
-.error {
-  color: #ff4136;
-  margin-bottom: 1rem;
-  font-weight: bold;
-}
-td > .action-btn {
-  display: inline-block;
+
+.regroupement-icon, .activite-icon {
+  font-size: 1.2rem;
   margin-right: 0.5rem;
+}
+
+.libelle {
+  flex: 1;
+  font-weight: 500;
+}
+
+.categorie {
+  color: #666;
+  font-style: italic;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.activites-enfants {
+  padding: 0;
+}
+
+.activite-enfant, .add-activite-form {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+
+.activite-enfant:last-child {
+  border-bottom: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.activite-isolee {
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+}
+
+.indent {
+  color: #666;
+  font-family: monospace;
+  margin-right: 0.5rem;
+}
+
+.edit-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.edit-form input, .edit-form select {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.add-forms {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.add-regroupement, .add-activite-isolee {
+  margin-bottom: 1.5rem;
+}
+
+.add-regroupement:last-child, .add-activite-isolee:last-child {
   margin-bottom: 0;
 }
-td > .action-btn:last-child {
-  margin-right: 0;
+
+.form-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.form-row input, .form-row select {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Boutons */
+.btn-edit, .btn-delete, .btn-add-child, .btn-save, .btn-cancel, .btn-add {
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-edit {
+  background: #007bff;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #0056b3;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+}
+
+.btn-add-child, .btn-add {
+  background: #28a745;
+  color: white;
+}
+
+.btn-add-child:hover, .btn-add:hover {
+  background: #1e7e34;
+}
+
+.btn-save {
+  background: #28a745;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #1e7e34;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #545b62;
+}
+
+.error {
+  color: #dc3545;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  padding: 0.5rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+h3, h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+h4 {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.editing {
+  background: #fff3cd !important;
+  border-color: #ffeaa7 !important;
 }

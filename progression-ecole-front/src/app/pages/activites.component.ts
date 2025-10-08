@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgIf, NgFor, NgClass, CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Activite } from '../models/activite.model';
@@ -10,7 +10,7 @@ import { Categorie } from '../models/categorie.model';
 @Component({
   selector: 'app-activites',
   standalone: true,
-  imports: [ReactiveFormsModule, DragDropModule],
+  imports: [ReactiveFormsModule, DragDropModule, CommonModule],
   templateUrl: './activites.component.html',
   styleUrls: ['./activites.component.css']
 })
@@ -258,7 +258,43 @@ export class ActivitesComponent {
     return [...this.activites()].sort((a, b) => a.ordre - b.ordre);
   }
 
-  onDrop(event: any) {
-    // TODO: Implémenter le drag & drop pour les regroupements si nécessaire
+  // Liste mixte des regroupements et activités isolées, triée par ordre
+  get elementsPrincipaux(): Activite[] {
+    const regroupements = this.regroupements();
+    const isolees = this.activitesIsolees();
+    return [...regroupements, ...isolees].sort((a, b) => a.ordre - b.ordre);
+  }
+
+  onDropElementsPrincipaux(event: any) {
+    const elements = [...this.elementsPrincipaux];
+    moveItemInArray(elements, event.previousIndex, event.currentIndex);
+    
+    // Récupérer les IDs dans le nouvel ordre
+    const nouveauOrdre = elements.map(e => e.id);
+    
+    // Envoyer au backend
+    this.activiteService.reorganiserOrdre(nouveauOrdre).subscribe({
+      next: () => {
+        this.loadRegroupements();
+        this.loadActivitesIsolees();
+      },
+      error: () => this.error.set('Erreur lors de la réorganisation')
+    });
+  }
+
+  onDropEnfants(event: any, parentId: string) {
+    const enfants = [...this.getEnfants(parentId)];
+    moveItemInArray(enfants, event.previousIndex, event.currentIndex);
+    
+    // Récupérer les IDs dans le nouvel ordre
+    const nouveauOrdre = enfants.map(e => e.id);
+    
+    // Envoyer au backend
+    this.activiteService.reorganiserOrdre(nouveauOrdre).subscribe({
+      next: () => {
+        this.loadEnfants(parentId);
+      },
+      error: () => this.error.set('Erreur lors de la réorganisation des activités enfants')
+    });
   }
 }

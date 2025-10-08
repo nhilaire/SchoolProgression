@@ -95,6 +95,22 @@ namespace ProgressionEcole.Repositories
             }
         }
 
+        public void ReorganiserOrdre(List<string> ids)
+        {
+            lock (_activites)
+            {
+                for (int i = 0; i < ids.Count; i++)
+                {
+                    var activite = _activites.FirstOrDefault(a => a.Id == ids[i]);
+                    if (activite != null)
+                    {
+                        activite.Ordre = i + 1;
+                    }
+                }
+                Save();
+            }
+        }
+
         private void Load()
         {
             if (File.Exists(_filePath))

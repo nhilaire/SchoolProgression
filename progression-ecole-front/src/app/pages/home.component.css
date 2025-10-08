@@ -79,11 +79,36 @@
   color: #2ecc40;
   font-weight: bold;
   margin-top: 0.5em;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  animation: fadeInOut 4s ease-in-out forwards;
 }
 .notif-error {
   color: #ff4136;
   font-weight: bold;
   margin-top: 0.5em;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  animation: fadeInOut 4s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
 }
 .periode-label {
   margin-right: 1em;

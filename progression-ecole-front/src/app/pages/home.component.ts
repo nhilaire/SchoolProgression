@@ -1,4 +1,4 @@
-import { Component, signal, effect } from '@angular/core';
+import { Component, signal, effect, OnDestroy } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -16,7 +16,7 @@ import { EleveService, Eleve } from '../services/eleve.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   generateDocx() {
     if (!this.selectedPeriode()) 
       return;
@@ -30,8 +30,7 @@ export class HomeComponent {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.notification.set("Erreur lors de la génération du document");
-        this.notificationColor.set('error');
+        this.showNotification("Erreur lors de la génération du document", 'error');
       }
     });
   }
@@ -64,12 +63,10 @@ export class HomeComponent {
     };
     this.periodeService.save(data).subscribe({
       next: () => {
-        this.notification.set('Enregistrement réussi !');
-        this.notificationColor.set('success');
+        this.showNotification('Enregistrement réussi !', 'success');
       },
       error: () => {
-        this.notification.set("Erreur lors de l'enregistrement");
-        this.notificationColor.set('error');
+        this.showNotification("Erreur lors de l'enregistrement", 'error');
       }
     });
   }
@@ -81,6 +78,7 @@ export class HomeComponent {
   selectedActivites: { [id: string]: boolean } = {};
   notification = signal<string | null>(null);
   notificationColor = signal<'success' | 'error' | null>(null);
+  private notificationTimeout: any = null;
 
   constructor(
     private apiService: ApiService,
@@ -165,6 +163,30 @@ export class HomeComponent {
       return 'activite-enfant-item';
     } else {
       return 'activite-isolee-item';
+    }
+  }
+
+  private showNotification(message: string, type: 'success' | 'error'): void {
+    // Nettoyer le timeout précédent s'il existe
+    if (this.notificationTimeout) {
+      clearTimeout(this.notificationTimeout);
+    }
+
+    // Afficher la notification
+    this.notification.set(message);
+    this.notificationColor.set(type);
+
+    // Programmer la disparition après 4 secondes (légèrement avant la fin de l'animation)
+    this.notificationTimeout = setTimeout(() => {
+      this.notification.set(null);
+      this.notificationColor.set(null);
+      this.notificationTimeout = null;
+    }, 3900);
+  }
+
+  ngOnDestroy(): void {
+    if (this.notificationTimeout) {
+      clearTimeout(this.notificationTimeout);
     }
   }
 }

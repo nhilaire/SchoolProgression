@@ -74,5 +74,12 @@ namespace ProgressionEcole.Controllers
             _repo.Add(activite);
             return Ok();
         }
+
+        [HttpPost("reorganiser")]
+        public IActionResult ReorganiserOrdre([FromBody] List<string> ids)
+        {
+            _repo.ReorganiserOrdre(ids);
+            return Ok();
+        }
     }
 }

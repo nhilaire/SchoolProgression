@@ -45,4 +45,8 @@ export class ActiviteService {
   addActiviteToRegroupement(activite: Activite): Observable<Activite> {
     return this.http.post<Activite>(`${this.baseUrl}/activite-enfant`, activite);
   }
+
+  reorganiserOrdre(ids: string[]): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/reorganiser`, ids);
+  }
 }

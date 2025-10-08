@@ -9,111 +9,120 @@
   <div class="activites-hierarchy">
     <h3>Structure des activités</h3>
     
-    <!-- Regroupements et leurs activités -->
-    @for (regroupement of regroupements(); track regroupement.id) {
-      <div class="regroupement">
-        <div class="regroupement-header" [class.editing]="selected()?.id === regroupement.id">
-          @if (selected() && selected()?.id === regroupement.id) {
-            <div class="edit-form">
-              <input [formControl]="editLibelleCourt" placeholder="Libellé court du regroupement" />
-              <input [formControl]="editLibelleLong" placeholder="Libellé long du regroupement" />
-              <select [formControl]="editCategorieId">
-                <option value="" disabled>Choisir une catégorie</option>
-                @for (cat of categories(); track cat.id) {
-                  <option [value]="cat.id">{{ cat.libelle }}</option>
-                }
-              </select>
-              <button class="btn-save" (click)="save()">Enregistrer</button>
-              <button class="btn-cancel" (click)="cancel()">Annuler</button>
-            </div>
-          } @else {
-            <div class="regroupement-info">
-              <span class="regroupement-icon">📁</span>
-              <span class="libelle">{{ regroupement.libelleCourt }} - {{ regroupement.libelleLong }}</span>
-              <span class="categorie">({{ getCategorieLibelle(regroupement.categorieId) }})</span>
-              <div class="actions">
-                <button class="btn-edit" (click)="select(regroupement)">Modifier</button>
-                <button class="btn-delete" (click)="deleteActivite(regroupement.id)">Supprimer</button>
-                <button class="btn-add-child" (click)="startAddingToRegroupement(regroupement.id)">+ Activité</button>
-              </div>
-            </div>
-          }
-        </div>
-        
-        <!-- Activités enfants -->
-        <div class="activites-enfants">
-          @for (enfant of getEnfants(regroupement.id); track enfant.id) {
-            <div class="activite-enfant" [class.editing]="selected()?.id === enfant.id">
-              @if (selected() && selected()?.id === enfant.id) {
+    <!-- Liste mixte des regroupements et activités isolées -->
+    <div cdkDropList 
+         (cdkDropListDropped)="onDropElementsPrincipaux($event)"
+         class="elements-principaux-list">
+      @for (element of elementsPrincipaux; track element.id) {
+        @if (element.estRegroupement) {
+          <!-- Regroupement -->
+          <div class="regroupement" cdkDrag>
+            <div class="regroupement-header" [class.editing]="selected()?.id === element.id">
+              <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+              @if (selected() && selected()?.id === element.id) {
                 <div class="edit-form">
-                  <span class="indent">└─</span>
-                  <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
-                  <input [formControl]="editLibelleLong" placeholder="Libellé long" />
+                  <input [formControl]="editLibelleCourt" placeholder="Libellé court du regroupement" />
+                  <input [formControl]="editLibelleLong" placeholder="Libellé long du regroupement" />
+                  <select [formControl]="editCategorieId">
+                    <option value="" disabled>Choisir une catégorie</option>
+                    @for (cat of categories(); track cat.id) {
+                      <option [value]="cat.id">{{ cat.libelle }}</option>
+                    }
+                  </select>
                   <button class="btn-save" (click)="save()">Enregistrer</button>
                   <button class="btn-cancel" (click)="cancel()">Annuler</button>
                 </div>
               } @else {
-                <div class="activite-info">
-                  <span class="indent">└─</span>
-                  <span class="libelle">{{ enfant.libelleCourt }} - {{ enfant.libelleLong }}</span>
+                <div class="regroupement-info">
+                  <span class="regroupement-icon">📁</span>
+                  <span class="libelle">{{ element.libelleCourt }} - {{ element.libelleLong }}</span>
+                  <span class="categorie">({{ getCategorieLibelle(element.categorieId) }})</span>
                   <div class="actions">
-                    <button class="btn-edit" (click)="select(enfant)">Modifier</button>
-                    <button class="btn-delete" (click)="deleteActivite(enfant.id)">Supprimer</button>
+                    <button class="btn-edit" (click)="select(element)">Modifier</button>
+                    <button class="btn-delete" (click)="deleteActivite(element.id)">Supprimer</button>
+                    <button class="btn-add-child" (click)="startAddingToRegroupement(element.id)">+ Activité</button>
                   </div>
                 </div>
               }
             </div>
-          }
-          
-          <!-- Formulaire d'ajout d'activité dans le regroupement -->
-          @if (addingToRegroupement() === regroupement.id) {
-            <div class="add-activite-form">
-              <span class="indent">└─</span>
-              <input [formControl]="addLibelleCourt" placeholder="Libellé court" />
-              <input [formControl]="addLibelleLong" placeholder="Libellé long" />
-              <button class="btn-save" (click)="addActiviteToRegroupement(regroupement.id)">Ajouter</button>
-              <button class="btn-cancel" (click)="cancelAddingToRegroupement()">Annuler</button>
+            
+            <!-- Activités enfants -->
+            <div class="activites-enfants" 
+                 cdkDropList 
+                 (cdkDropListDropped)="onDropEnfants($event, element.id)">
+              @for (enfant of getEnfants(element.id); track enfant.id) {
+                <div class="activite-enfant" 
+                     [class.editing]="selected()?.id === enfant.id"
+                     cdkDrag>
+                  @if (selected() && selected()?.id === enfant.id) {
+                    <div class="edit-form">
+                      <span class="indent">└─</span>
+                      <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
+                      <input [formControl]="editLibelleLong" placeholder="Libellé long" />
+                      <button class="btn-save" (click)="save()">Enregistrer</button>
+                      <button class="btn-cancel" (click)="cancel()">Annuler</button>
+                    </div>
+                  } @else {
+                    <div class="activite-info">
+                      <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+                      <span class="indent">└─</span>
+                      <span class="libelle">{{ enfant.libelleCourt }} - {{ enfant.libelleLong }}</span>
+                      <div class="actions">
+                        <button class="btn-edit" (click)="select(enfant)">Modifier</button>
+                        <button class="btn-delete" (click)="deleteActivite(enfant.id)">Supprimer</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              
+              <!-- Formulaire d'ajout d'activité dans le regroupement -->
+              @if (addingToRegroupement() === element.id) {
+                <div class="add-activite-form">
+                  <span class="indent">└─</span>
+                  <input [formControl]="addLibelleCourt" placeholder="Libellé court" />
+                  <input [formControl]="addLibelleLong" placeholder="Libellé long" />
+                  <button class="btn-save" (click)="addActiviteToRegroupement(element.id)">Ajouter</button>
+                  <button class="btn-cancel" (click)="cancelAddingToRegroupement()">Annuler</button>
+                </div>
+              }
             </div>
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Activités isolées -->
-    <div class="activites-isolees">
-      <h4>Activités isolées</h4>
-      @for (activite of activitesIsolees(); track activite.id) {
-        <div class="activite-isolee" [class.editing]="selected()?.id === activite.id">
-          @if (selected() && selected()?.id === activite.id) {
-            <div class="edit-form">
-              <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
-              <input [formControl]="editLibelleLong" placeholder="Libellé long" />
-              <select [formControl]="editCategorieId">
-                <option value="" disabled>Choisir une catégorie</option>
-                @for (cat of categories(); track cat.id) {
-                  <option [value]="cat.id">{{ cat.libelle }}</option>
-                }
-              </select>
-              <button class="btn-save" (click)="save()">Enregistrer</button>
-              <button class="btn-cancel" (click)="cancel()">Annuler</button>
-            </div>
-          } @else {
-            <div class="activite-info">
-              <span class="activite-icon">📄</span>
-              <span class="libelle">{{ activite.libelleCourt }} - {{ activite.libelleLong }}</span>
-              <span class="categorie">({{ getCategorieLibelle(activite.categorieId) }})</span>
-              <div class="actions">
-                <button class="btn-edit" (click)="select(activite)">Modifier</button>
-                <button class="btn-delete" (click)="deleteActivite(activite.id)">Supprimer</button>
+          </div>
+        } @else {
+          <!-- Activité isolée -->
+          <div class="activite-isolee" 
+               [class.editing]="selected()?.id === element.id"
+               cdkDrag>
+            @if (selected() && selected()?.id === element.id) {
+              <div class="edit-form">
+                <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
+                <input [formControl]="editLibelleLong" placeholder="Libellé long" />
+                <select [formControl]="editCategorieId">
+                  <option value="" disabled>Choisir une catégorie</option>
+                  @for (cat of categories(); track cat.id) {
+                    <option [value]="cat.id">{{ cat.libelle }}</option>
+                  }
+                </select>
+                <button class="btn-save" (click)="save()">Enregistrer</button>
+                <button class="btn-cancel" (click)="cancel()">Annuler</button>
               </div>
-            </div>
-          }
-        </div>
+            } @else {
+              <div class="activite-info">
+                <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+                <span class="activite-icon">📄</span>
+                <span class="libelle">{{ element.libelleCourt }} - {{ element.libelleLong }}</span>
+                <span class="categorie">({{ getCategorieLibelle(element.categorieId) }})</span>
+                <div class="actions">
+                  <button class="btn-edit" (click)="select(element)">Modifier</button>
+                  <button class="btn-delete" (click)="deleteActivite(element.id)">Supprimer</button>
+                </div>
+              </div>
+            }
+          </div>
+        }
       }
     </div>
-  </div>
-
-  <!-- Formulaires d'ajout -->
+  </div>  <!-- Formulaires d'ajout -->
   <div class="add-forms">
     <h3>Ajouter</h3>
     

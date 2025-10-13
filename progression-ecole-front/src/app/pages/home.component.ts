@@ -129,6 +129,31 @@ export class HomeComponent implements OnDestroy {
   onActiviteChange(): void {
     this.markAsChanged();
   }
+
+  // Met à jour les activités cochées pour la période courante
+  private updateSelectedActivitesForCurrentPeriod(): void {
+    const periode = this.selectedPeriode();
+    const periodeData = this.periodesActivites.find(p => p.periode === periode);
+    
+    // Reset tous les checkboxes
+    this.selectedActivites = {};
+    
+    // Cocher les activités de la période courante
+    if (periodeData && periodeData.activiteIds) {
+      periodeData.activiteIds.forEach(id => {
+        this.selectedActivites[id] = true;
+      });
+    }
+    
+    // Mettre à jour l'état sauvegardé et marquer comme non modifié
+    this.lastSavedState = { ...this.selectedActivites };
+    this.hasUnsavedChanges = false;
+    
+    // Reset du timer auto-save
+    if (this.autoSaveTimer) {
+      clearTimeout(this.autoSaveTimer);
+    }
+  }
   activites = signal<Activite[]>([]);
   status = signal<'ok' | 'ko' | null>(null);
   categories = signal<Categorie[]>([]);
@@ -206,10 +231,8 @@ export class HomeComponent implements OnDestroy {
       this.periodeService.getAll(String(this.selectedEleve())).subscribe({
         next: (datas) => {
           this.periodesActivites = datas;
-          this.selectedActivites = {};
-          this.lastSavedState = {};
-          this.hasUnsavedChanges = false;
-          // Ne pas pré-cocher les activités déjà réalisées
+          // Pré-cocher les activités de la période courante
+          this.updateSelectedActivitesForCurrentPeriod();
         },
         error: () => {
           this.selectedActivites = {};
@@ -218,6 +241,15 @@ export class HomeComponent implements OnDestroy {
           this.hasUnsavedChanges = false;
         }
       });
+    });
+
+    // Effet pour gérer le changement de période
+    effect(() => {
+      const periode = this.selectedPeriode();
+      const eleve = this.selectedEleve();
+      if (eleve && periode && this.periodesActivites.length > 0) {
+        this.updateSelectedActivitesForCurrentPeriod();
+      }
     });
   }
 

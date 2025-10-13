@@ -4,6 +4,7 @@ using System.IO;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using ProgressionEcole.Repositories;
 using ProgressionEcole.Models;
 
@@ -11,16 +12,18 @@ namespace ProgressionEcole.Services
 {
     public class GenerationService
     {
-        private readonly string _templatePath = "Data/modele_{0}.docx";
+        private readonly string _templatePath;
         private readonly EleveRepository _eleveRepo;
         private readonly ActiviteRepository _activiteRepo;
         private readonly PeriodeRepository _periodeRepo;
 
-        public GenerationService(EleveRepository eleveRepo, ActiviteRepository activiteRepo, PeriodeRepository periodeRepo)
+        public GenerationService(EleveRepository eleveRepo, ActiviteRepository activiteRepo, PeriodeRepository periodeRepo, IOptions<DataPathsConfig> config)
         {
             _eleveRepo = eleveRepo;
             _activiteRepo = activiteRepo;
             _periodeRepo = periodeRepo;
+            var dataConfig = config.Value;
+            _templatePath = Path.Combine(dataConfig.DataDirectory, "modele_{0}.docx");
         }
 
         public byte[] GenerateDocx(string periode)

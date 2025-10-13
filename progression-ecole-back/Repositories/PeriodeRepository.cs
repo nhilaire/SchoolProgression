@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
+using ProgressionEcole.Models;
 
 namespace ProgressionEcole.Repositories
 {
@@ -13,11 +15,13 @@ namespace ProgressionEcole.Repositories
 
     public class PeriodeRepository
     {
-        private readonly string _filePath = "Data/periodes.json";
+        private readonly string _filePath;
         private List<PeriodeActivites> _periodes = new();
 
-        public PeriodeRepository()
+        public PeriodeRepository(IOptions<DataPathsConfig> config)
         {
+            var dataConfig = config.Value;
+            _filePath = Path.Combine(dataConfig.DataDirectory, dataConfig.PeriodesFile);
             Load();
         }
 

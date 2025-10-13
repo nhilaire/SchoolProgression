@@ -1,15 +1,18 @@
 using ProgressionEcole.Models;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 
 namespace ProgressionEcole.Repositories
 {
     public class EleveRepository
     {
-        private readonly string _filePath = "Data/eleves.json";
+        private readonly string _filePath;
         private List<Eleve> _eleves = new();
 
-        public EleveRepository()
+        public EleveRepository(IOptions<DataPathsConfig> config)
         {
+            var dataConfig = config.Value;
+            _filePath = Path.Combine(dataConfig.DataDirectory, dataConfig.ElevesFile);
             Load();
         }
 

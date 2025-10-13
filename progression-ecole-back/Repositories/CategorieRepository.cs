@@ -1,17 +1,20 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using ProgressionEcole.Models;
 
 namespace ProgressionEcole.Repositories
 {
     public class CategorieRepository
     {
-        private readonly string _filePath = "Data/categories.json";
+        private readonly string _filePath;
         private List<Categorie> _categories = new();
 
-        public CategorieRepository()
+        public CategorieRepository(IOptions<DataPathsConfig> config)
         {
+            var dataConfig = config.Value;
+            _filePath = Path.Combine(dataConfig.DataDirectory, dataConfig.CategoriesFile);
             Load();
         }
 

@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using ProgressionEcole.Models;
 
 namespace ProgressionEcole.Repositories
 {
     public class ActiviteRepository
     {
-        private readonly string _filePath = "Data/activites.json";
+        private readonly string _filePath;
         private List<Activite> _activites = new();
 
-        public ActiviteRepository()
+        public ActiviteRepository(IOptions<DataPathsConfig> config)
         {
+            var dataConfig = config.Value;
+            _filePath = Path.Combine(dataConfig.DataDirectory, dataConfig.ActivitesFile);
             Load();
         }
 

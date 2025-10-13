@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using ProgressionEcole.Repositories;
-using Microsoft.AspNetCore.Mvc;
-using ProgressionEcole.Repositories;
 using ProgressionEcole.Services;
 
 namespace ProgressionEcole.Controllers
@@ -11,16 +9,12 @@ namespace ProgressionEcole.Controllers
     public class PeriodeController : ControllerBase
     {
         private readonly PeriodeRepository _repo;
-        private readonly EleveRepository _eleveRepo;
-        private readonly ActiviteRepository _activiteRepo;
         private readonly GenerationService _generationService;
 
-        public PeriodeController()
+        public PeriodeController(PeriodeRepository repo, GenerationService generationService)
         {
-            _repo = new PeriodeRepository();
-            _eleveRepo = new EleveRepository();
-            _activiteRepo = new ActiviteRepository();
-            _generationService = new GenerationService(_eleveRepo, _activiteRepo, _repo);
+            _repo = repo;
+            _generationService = generationService;
         }
 
         [HttpGet("{periode}/generate")]

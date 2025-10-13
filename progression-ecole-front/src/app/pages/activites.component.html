@@ -16,9 +16,9 @@
       @for (element of elementsPrincipaux; track element.id) {
         @if (element.estRegroupement) {
           <!-- Regroupement -->
-          <div class="regroupement" cdkDrag>
+          <div class="regroupement" cdkDrag [cdkDragDisabled]="selected()?.id === element.id" (cdkDragStarted)="onDragStarted($event)">
             <div class="regroupement-header" [class.editing]="selected()?.id === element.id">
-              <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+              <div class="drag-handle" cdkDragHandle title="Glisser pour réorganiser le regroupement">⋮⋮</div>
               @if (selected() && selected()?.id === element.id) {
                 <div class="edit-form">
                   <input [formControl]="editLibelleCourt" placeholder="Libellé court du regroupement" />
@@ -53,7 +53,7 @@
               @for (enfant of getEnfants(element.id); track enfant.id) {
                 <div class="activite-enfant" 
                      [class.editing]="selected()?.id === enfant.id"
-                     cdkDrag>
+                     cdkDrag [cdkDragDisabled]="selected()?.id === enfant.id" (cdkDragStarted)="onDragStarted($event)">
                   @if (selected() && selected()?.id === enfant.id) {
                     <div class="edit-form">
                       <span class="indent">└─</span>
@@ -64,7 +64,7 @@
                     </div>
                   } @else {
                     <div class="activite-info">
-                      <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+                      <div class="drag-handle" cdkDragHandle title="Glisser pour réorganiser dans le regroupement">⋮⋮</div>
                       <span class="indent">└─</span>
                       <span class="libelle">{{ enfant.libelleCourt }} - {{ enfant.libelleLong }}</span>
                       <div class="actions">
@@ -92,7 +92,7 @@
           <!-- Activité isolée -->
           <div class="activite-isolee" 
                [class.editing]="selected()?.id === element.id"
-               cdkDrag>
+               cdkDrag [cdkDragDisabled]="selected()?.id === element.id" (cdkDragStarted)="onDragStarted($event)">
             @if (selected() && selected()?.id === element.id) {
               <div class="edit-form">
                 <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
@@ -108,7 +108,7 @@
               </div>
             } @else {
               <div class="activite-info">
-                <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+                <div class="drag-handle" cdkDragHandle title="Glisser pour réorganiser l'activité">⋮⋮</div>
                 <span class="activite-icon">📄</span>
                 <span class="libelle">{{ element.libelleCourt }} - {{ element.libelleLong }}</span>
                 <span class="categorie">({{ getCategorieLibelle(element.categorieId) }})</span>

@@ -47,7 +47,39 @@ namespace ProgressionEcole.Repositories
             {
                 var json = File.ReadAllText(_filePath);
                 _categories = JsonSerializer.Deserialize<List<Categorie>>(json) ?? new();
+                
+                // Assigner les couleurs par défaut selon les libellés
+                bool needsSave = false;
+                foreach (var categorie in _categories)
+                {
+                    if (string.IsNullOrEmpty(categorie.Couleur))
+                    {
+                        categorie.Couleur = GetCouleurByLibelle(categorie.Libelle);
+                        needsSave = true;
+                    }
+                }
+                
+                // Sauvegarder si des couleurs ont été ajoutées
+                if (needsSave)
+                {
+                    Save();
+                }
             }
+        }
+
+        private string GetCouleurByLibelle(string libelle)
+        {
+            return libelle switch
+            {
+                "Activités préliminaires - autres" => "#D9A0FA", // RGB(217,160, 250)
+                "Vie pratique - Motricité fine" => "#A863EB",     // RGB(168, 99, 235)
+                "Activités sensorielles - Formes et grandeurs" => "#85A5FC", // RGB(133, 165, 252)
+                "Explorer le monde" => "#00DAFF",                // RGB(0, 218, 255)
+                "Langage : oral - phonologie" => "#99F8E0",       // RGB(153, 248, 224)
+                "Langage : lecture / encodage, écriture" => "#83BA2B", // RGB(131, 186, 43)
+                "Mathématiques - Numération" => "#DBDB15",        // RGB(219, 219, 21)
+                _ => "#E0E0E0" // Couleur par défaut grise
+            };
         }
 
         private void Save()

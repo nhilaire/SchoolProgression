@@ -42,5 +42,12 @@ namespace ProgressionEcole.Controllers
             _repo.Delete(id);
             return Ok();
         }
+
+        [HttpPost("reorganize")]
+        public IActionResult Reorganize([FromBody] List<Eleve> eleves)
+        {
+            _repo.ReorganizeEleves(eleves);
+            return Ok();
+        }
     }
 }

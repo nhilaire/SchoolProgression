@@ -3,46 +3,52 @@
   @if (error()) {
     <div class="error">{{ error() }}</div>
   }
-  <table class="eleves-table">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (eleve of eleves(); track eleve.id) {
-        <tr>
-          @if (selected() && selected()?.id === eleve.id) {
-            <td>
-              <input [formControl]="editNom" placeholder="Nom" required />
-            </td>
-            <td>
-              <input [formControl]="editPrenom" placeholder="Prénom" required />
-            </td>
-            <td>
-              <button class="action-btn" (click)="save()">Enregistrer</button>
-              <button class="action-btn" (click)="cancel()">Annuler</button>
-            </td>
-          }
-          @else {
-            <td>{{ eleve.nom }}</td>
-            <td>{{ eleve.prenom }}</td>
-            <td>
-              <button class="action-btn" (click)="select(eleve)">Modifier</button>
-              <button class="action-btn" (click)="deleteEleve(eleve.id)">Supprimer</button>
-            </td>
-          }
-        </tr>
-      }
-    </tbody>
-  </table>
+  <div class="eleves-list" 
+       cdkDropList 
+       (cdkDropListDropped)="onDropEleves($event)">
+    @for (eleve of eleves(); track eleve.id) {
+      <div class="eleve-item" 
+           [class.editing]="selected()?.id === eleve.id"
+           cdkDrag 
+           [cdkDragDisabled]="selected()?.id === eleve.id">
+        @if (selected() && selected()?.id === eleve.id) {
+          <div class="edit-form">
+            <input [formControl]="editPrenom" placeholder="Prénom" required />
+            <select [formControl]="editClasse" required>
+              <option value="Petit">Petit</option>
+              <option value="Moyen">Moyen</option>
+              <option value="Grand">Grand</option>
+            </select>
+            <div class="actions">
+              <button class="action-btn btn-save" (click)="save()">Enregistrer</button>
+              <button class="action-btn btn-cancel" (click)="cancel()">Annuler</button>
+            </div>
+          </div>
+        } @else {
+          <div class="eleve-info">
+            <div class="drag-handle" cdkDragHandle title="Glisser pour réorganiser l'élève">⋮⋮</div>
+            <span class="eleve-icon">👤</span>
+            <span class="eleve-prenom">{{ eleve.prenom }}</span>
+            <span class="eleve-classe classe-{{ (eleve.classe || 'Petit').toLowerCase() }}">{{ eleve.classe || 'Petit' }}</span>
+            <div class="actions">
+              <button class="action-btn btn-edit" (click)="select(eleve)">Modifier</button>
+              <button class="action-btn btn-delete" (click)="deleteEleve(eleve.id)">Supprimer</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
 
   <h3>Ajouter un élève</h3>
   <div class="add-form">
-    <input [formControl]="addNom" placeholder="Nom" required />
     <input [formControl]="addPrenom" placeholder="Prénom" required (keydown.enter)="add()" />
+    <select [formControl]="addClasse" required>
+      <option value="" disabled selected>Choisir une classe</option>
+      <option value="Petit">Petit</option>
+      <option value="Moyen">Moyen</option>
+      <option value="Grand">Grand</option>
+    </select>
     <button type="button" (click)="add()">Ajouter</button>
   </div>
 

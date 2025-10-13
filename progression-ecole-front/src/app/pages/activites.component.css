@@ -207,6 +207,11 @@ h4 {
   border-color: #ffeaa7 !important;
 }
 
+/* Masquer la poignée de drag en mode édition */
+.editing .drag-handle {
+  display: none;
+}
+
 /* Styles pour le drag & drop */
 .drag-handle {
   cursor: grab;
@@ -214,14 +219,116 @@ h4 {
   margin-right: 0.5rem;
   font-size: 1.2rem;
   user-select: none;
+  padding: 0.2rem;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  /* Empêcher la propagation des clics */
+  z-index: 10;
+  position: relative;
+  /* S'assurer que c'est bien un handle */
+  touch-action: none;
 }
 
 .drag-handle:hover {
   color: #666;
+  background-color: #f0f0f0;
 }
 
 .drag-handle:active {
   cursor: grabbing;
+  background-color: #e0e0e0;
+}
+
+/* IMPORTANT: Empêcher le drag sur tout le reste */
+.cdk-drag:not(.cdk-drag-preview):not(.cdk-drag-placeholder) {
+  cursor: default !important;
+}
+
+.cdk-drag .regroupement-info,
+.cdk-drag .activite-info {
+  cursor: default !important;
+  /* Empêcher que ces zones déclenchent le drag */
+  pointer-events: auto;
+}
+
+.cdk-drag .libelle,
+.cdk-drag .categorie,
+.cdk-drag .actions {
+  cursor: default !important;
+}
+
+/* Seul le handle doit avoir le curseur grab */
+.cdk-drag .drag-handle {
+  cursor: grab !important;
+  pointer-events: auto !important;
+}
+
+/* Empêcher la sélection de texte lors du drag */
+.cdk-drag-dragging * {
+  user-select: none !important;
+}
+
+/* Configuration pour que seuls les handles permettent le drag */
+.cdk-drag .drag-handle {
+  cursor: grab;
+}
+
+/* Empêcher le drag sur les zones de contenu - IMPORTANT */
+.libelle, .categorie, .actions, .edit-form, .regroupement-info, .activite-info {
+  cursor: default;
+}
+
+/* Style du contenu quand on survole */
+.regroupement-info:hover, .activite-info:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+/* Permettre l'interaction normale avec les contrôles */
+button, input, select, textarea {
+  cursor: pointer;
+}
+
+input, textarea {
+  cursor: text;
+}
+
+/* Assurer que les handles sont visibles et fonctionnels */
+.drag-handle {
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Effet visuel pour indiquer clairement que c'est draggable */
+.drag-handle:hover {
+  border-color: #ddd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Message d'aide pour l'utilisateur */
+.drag-handle::before {
+  content: attr(title);
+  position: absolute;
+  background: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition: opacity 0.2s;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+}
+
+.drag-handle:hover::before {
+  opacity: 1;
 }
 
 .cdk-drop-list {
@@ -232,9 +339,7 @@ h4 {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.cdk-drag:active {
-  transform: scale(1.05);
-}
+
 
 .cdk-drag-animating {
   transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);

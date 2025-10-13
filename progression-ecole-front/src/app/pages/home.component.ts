@@ -64,11 +64,70 @@ export class HomeComponent implements OnDestroy {
     this.periodeService.save(data).subscribe({
       next: () => {
         this.showNotification('Enregistrement réussi !', 'success');
+        // Mettre à jour l'état sauvegardé et marquer comme sauvegardé
+        this.lastSavedState = { ...this.selectedActivites };
+        this.hasUnsavedChanges = false;
+        this.resetAutoSaveTimer();
       },
       error: () => {
         this.showNotification("Erreur lors de l'enregistrement", 'error');
       }
     });
+  }
+
+  // Auto-save methods
+  private resetAutoSaveTimer(): void {
+    if (this.autoSaveTimer) {
+      clearTimeout(this.autoSaveTimer);
+    }
+    this.autoSaveTimer = setTimeout(() => {
+      if (this.hasUnsavedChanges && this.selectedEleve()) {
+        this.autoSave();
+      }
+    }, this.AUTO_SAVE_DELAY);
+  }
+
+  private autoSave(): void {
+    if (!this.selectedEleve() || !this.hasUnsavedChanges) return;
+    
+    const activiteIds: string[] = [];
+    for (const id of Object.keys(this.selectedActivites)) {
+      if (this.selectedActivites[id]) {
+        activiteIds.push(id);
+      }
+    }
+    const data = {
+      eleveId: String(this.selectedEleve()),
+      periode: this.selectedPeriode(),
+      activiteIds
+    };
+    
+    this.periodeService.save(data).subscribe({
+      next: () => {
+        this.showNotification('Sauvegarde automatique réussie', 'success');
+        this.lastSavedState = { ...this.selectedActivites };
+        this.hasUnsavedChanges = false;
+        this.resetAutoSaveTimer();
+      },
+      error: () => {
+        this.showNotification("Erreur lors de la sauvegarde automatique", 'error');
+        this.resetAutoSaveTimer(); // Réessayer plus tard
+      }
+    });
+  }
+
+  private markAsChanged(): void {
+    // Comparer l'état actuel avec le dernier état sauvegardé
+    const hasChanged = JSON.stringify(this.selectedActivites) !== JSON.stringify(this.lastSavedState);
+    if (hasChanged && !this.hasUnsavedChanges) {
+      this.hasUnsavedChanges = true;
+      this.resetAutoSaveTimer();
+    }
+  }
+
+  // Method to be called when checkboxes change
+  onActiviteChange(): void {
+    this.markAsChanged();
   }
   activites = signal<Activite[]>([]);
   status = signal<'ok' | 'ko' | null>(null);
@@ -79,6 +138,12 @@ export class HomeComponent implements OnDestroy {
   notification = signal<string | null>(null);
   notificationColor = signal<'success' | 'error' | null>(null);
   private notificationTimeout: any = null;
+  
+  // Auto-save functionality
+  private autoSaveTimer: any = null;
+  private hasUnsavedChanges = false;
+  private lastSavedState: { [id: string]: boolean } = {};
+  private readonly AUTO_SAVE_DELAY = 5000; // 5 secondes
 
   constructor(
     private apiService: ApiService,
@@ -115,6 +180,7 @@ export class HomeComponent implements OnDestroy {
       // Charger les catégories
       this.categorieService.getAll().subscribe({
         next: (cats) => {
+          console.log('Catégories reçues:', cats); // Debug: voir les couleurs
           this.categories.set(cats);
           if (cats.length > 0) {
             this.selectedTab.set(cats[0].id);
@@ -130,17 +196,26 @@ export class HomeComponent implements OnDestroy {
       if (!this.selectedEleve()) {
         this.periodesActivites = [];
         this.selectedActivites = {};
+        this.lastSavedState = {};
+        this.hasUnsavedChanges = false;
+        if (this.autoSaveTimer) {
+          clearTimeout(this.autoSaveTimer);
+        }
         return;
       }
       this.periodeService.getAll(String(this.selectedEleve())).subscribe({
         next: (datas) => {
           this.periodesActivites = datas;
           this.selectedActivites = {};
+          this.lastSavedState = {};
+          this.hasUnsavedChanges = false;
           // Ne pas pré-cocher les activités déjà réalisées
         },
         error: () => {
           this.selectedActivites = {};
           this.periodesActivites = [];
+          this.lastSavedState = {};
+          this.hasUnsavedChanges = false;
         }
       });
     });
@@ -149,7 +224,9 @@ export class HomeComponent implements OnDestroy {
   getActivitesForSelectedCategorie(): Activite[] {
     const catId = this.selectedTab();
     if (!catId) return [];
-    return this.activites().filter(a => a.categorieId === catId);
+    return this.activites()
+      .filter(a => a.categorieId === catId)
+      .sort((a, b) => a.ordre - b.ordre);
   }
 
   getEnfantsForActivite(parentId: string): Activite[] {
@@ -187,6 +264,18 @@ export class HomeComponent implements OnDestroy {
   ngOnDestroy(): void {
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
+    }
+    if (this.autoSaveTimer) {
+      clearTimeout(this.autoSaveTimer);
+    }
+  }
+
+  getClasseIcon(classe: string): string {
+    switch (classe) {
+      case 'Petit': return '🟢';
+      case 'Moyen': return '🔵';
+      case 'Grand': return '🟣';
+      default: return '🟢';
     }
   }
 }

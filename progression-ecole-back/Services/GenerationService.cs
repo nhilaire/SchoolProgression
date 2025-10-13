@@ -52,9 +52,9 @@ namespace ProgressionEcole.Services
                         var activiteLibelles = activitesIds?
                             .Select(id => _activiteRepo.GetById(id))
                             .Where(activite => activite != null && !activite.EstRegroupement) // Filtrer seulement les activités réelles
+                            .OrderBy(activite => activite!.Ordre) // Trier par l'ordre défini dans le JSON
                             .Select(activite => FormatActiviteLibelle(activite!))
                             .Where(lib => !string.IsNullOrWhiteSpace(lib))
-                            .OrderBy(lib => lib)
                             .ToList() ?? new List<string>();
 
                         var prenomParaOrig = body.Descendants<Paragraph>().FirstOrDefault(p => p.InnerText.Contains($"PRENOM{numeroEleve}"));
@@ -78,28 +78,12 @@ namespace ProgressionEcole.Services
         }
 
         /// <summary>
-        /// Formate le libellé d'une activité, en incluant le contexte du regroupement si nécessaire
+        /// Formate le libellé d'une activité, en excluant le contexte du regroupement
         /// </summary>
         private string FormatActiviteLibelle(Activite activite)
         {
-            if (string.IsNullOrWhiteSpace(activite.ParentId))
-            {
-                // Activité isolée
-                return activite.LibelleLong;
-            }
-            else
-            {
-                // Activité dans un regroupement - inclure le nom du regroupement
-                var regroupement = _activiteRepo.GetById(activite.ParentId);
-                if (regroupement != null)
-                {
-                    return $"{regroupement.LibelleLong} - {activite.LibelleLong}";
-                }
-                else
-                {
-                    return activite.LibelleLong;
-                }
-            }
+            // Retourner uniquement le libellé long de l'activité, sans le regroupement
+            return activite.LibelleLong;
         }
 
         private void ReplaceText(Body body, string placeholder, string value)

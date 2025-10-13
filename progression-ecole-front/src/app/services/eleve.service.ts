@@ -7,7 +7,7 @@ export interface Eleve {
   id: number;
   nom: string;
   prenom: string;
-  // Ajoutez d'autres champs si nécessaire
+  classe: string; // Valeurs possibles : "Petit", "Moyen", "Grand"
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,5 +30,9 @@ export class EleveService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  reorganize(eleves: Eleve[]): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/reorganize`, eleves);
   }
 }

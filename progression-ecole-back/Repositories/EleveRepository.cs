@@ -34,12 +34,27 @@ namespace ProgressionEcole.Repositories
             _eleves.RemoveAll(e => e.Id == id);
             Save();
         }
+
+        public void ReorganizeEleves(List<Eleve> elevesReorganises)
+        {
+            _eleves = elevesReorganises;
+            Save();
+        }
         private void Load()
         {
             if (File.Exists(_filePath))
             {
                 var json = File.ReadAllText(_filePath);
                 _eleves = JsonSerializer.Deserialize<List<Eleve>>(json) ?? new();
+                
+                // S'assurer que tous les élèves ont une classe par défaut
+                foreach (var eleve in _eleves)
+                {
+                    if (string.IsNullOrEmpty(eleve.Classe))
+                    {
+                        eleve.Classe = "Petit";
+                    }
+                }
             }
         }
         private void Save()

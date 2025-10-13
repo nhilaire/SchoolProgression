@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { NgIf, NgFor, NgClass, CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
-import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { DragDropModule, moveItemInArray, CdkDrag } from '@angular/cdk/drag-drop';
 import { Activite } from '../models/activite.model';
 import { ActiviteService } from '../services/activite.service';
 import { CategorieService } from '../services/categorie.service';
@@ -296,5 +296,21 @@ export class ActivitesComponent {
       },
       error: () => this.error.set('Erreur lors de la réorganisation des activités enfants')
     });
+  }
+
+  // Méthode pour vérifier si le drag doit être autorisé
+  onDragStarted(event: any) {
+    // Vérifier si l'événement provient d'un handle de drag
+    const source = event.source;
+    const elementSource = source.element.nativeElement;
+    
+    // Si l'événement ne provient pas d'un handle, on peut l'annuler
+    // Mais avec cdkDragHandle, cela devrait être automatique
+    console.log('Drag started from:', elementSource);
+  }
+
+  // Empêcher le drag si ce n'est pas depuis un handle
+  canDrag(item: any): boolean {
+    return true; // Pour l'instant, on fait confiance aux cdkDragHandle
   }
 }

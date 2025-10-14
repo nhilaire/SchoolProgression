@@ -83,8 +83,30 @@
                 }
               } @else if (!activite.parentId) {
                 <!-- Activité isolée -->
-                <input type="checkbox" [id]="'activite-' + activite.id" [value]="activite.id" [(ngModel)]="selectedActivites[activite.id]" (ngModelChange)="onActiviteChange()" title="Sélectionner l'activité {{ activite.libelleCourt }}" />
-                <label [for]="'activite-' + activite.id" [ngClass]="getPeriodeForActivite(activite.id) ? 'activite-highlight-' + getPeriodeForActivite(activite.id) : ''">{{ activite.libelleCourt }}</label>
+                @if (activite.estParametrable) {
+                  <!-- Activité paramétrable -->
+                  <div class="activite-parametrable">
+                    <input type="checkbox" [id]="'activite-' + activite.id" [value]="activite.id" [(ngModel)]="selectedActivites[activite.id]" (ngModelChange)="onActiviteChange()" title="Sélectionner l'activité {{ activite.libelleCourt }}" />
+                    <label [for]="'activite-' + activite.id" [ngClass]="getPeriodeForActivite(activite.id) ? 'activite-highlight-' + getPeriodeForActivite(activite.id) : ''">{{ activite.libelleCourt }}</label>
+                    
+                    @if (selectedActivites[activite.id]) {
+                      <div class="parametres-zone">
+                        <div class="template-preview">{{ getLibelleAvecParametres(activite) }}</div>
+                        @for (param of activite.nomsParametres || []; track param) {
+                          <input type="text" 
+                                 class="parametre-input"
+                                 [ngModel]="getParametreValue(activite.id, param)"
+                                 (ngModelChange)="setParametreValue(activite.id, param, $event)"
+                                 [placeholder]="'Saisir ' + param" />
+                        }
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <!-- Activité normale -->
+                  <input type="checkbox" [id]="'activite-' + activite.id" [value]="activite.id" [(ngModel)]="selectedActivites[activite.id]" (ngModelChange)="onActiviteChange()" title="Sélectionner l'activité {{ activite.libelleCourt }}" />
+                  <label [for]="'activite-' + activite.id" [ngClass]="getPeriodeForActivite(activite.id) ? 'activite-highlight-' + getPeriodeForActivite(activite.id) : ''">{{ activite.libelleCourt }}</label>
+                }
               }
             </div>
           }

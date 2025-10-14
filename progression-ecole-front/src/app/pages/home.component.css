@@ -131,6 +131,50 @@
   }
 }
 
+/* Styles pour les activités paramétrables */
+.activite-parametrable {
+  margin-bottom: 0.75rem;
+}
+
+.parametres-zone {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #007bff;
+}
+
+.template-preview {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.parametre-input {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin-bottom: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.parametre-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.parametre-input::placeholder {
+  color: #6c757d;
+  font-style: italic;
+}
+
 
 .periode-label {
   margin-right: 1em;

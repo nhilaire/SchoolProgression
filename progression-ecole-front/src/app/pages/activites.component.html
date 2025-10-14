@@ -103,6 +103,15 @@
                     <option [value]="cat.id">{{ cat.libelle }}</option>
                   }
                 </select>
+                <div class="parametrable-section">
+                  <label>
+                    <input type="checkbox" [formControl]="editEstParametrable" />
+                    Activité paramétrable
+                  </label>
+                  @if (editEstParametrable.value) {
+                    <small>Le libellé long peut contenir des placeholders comme {{ '{' }}0{{ '}' }}, {{ '{' }}1{{ '}' }}, {{ '{' }}2{{ '}' }}...</small>
+                  }
+                </div>
                 <button class="btn-save" (click)="save()">Enregistrer</button>
                 <button class="btn-cancel" (click)="cancel()">Annuler</button>
               </div>
@@ -154,6 +163,15 @@
             <option [value]="cat.id">{{ cat.libelle }}</option>
           }
         </select>
+        <div class="parametrable-section">
+          <label>
+            <input type="checkbox" [formControl]="addEstParametrable" />
+            Activité paramétrable
+          </label>
+          @if (addEstParametrable.value) {
+            <small>Le libellé long peut contenir des placeholders comme {{ '{' }}0{{ '}' }}, {{ '{' }}1{{ '}' }}, {{ '{' }}2{{ '}' }}...</small>
+          }
+        </div>
         <button class="btn-add" (click)="addActiviteIsolee()">Ajouter activité</button>
       </div>
     </div>

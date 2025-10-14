@@ -11,5 +11,10 @@ namespace ProgressionEcole.Models
         // Propriétés pour le regroupement
         public bool EstRegroupement { get; set; } = false;
         public string? ParentId { get; set; } = null; // ID du regroupement parent (null si activité isolée ou regroupement)
+        
+        // Propriétés pour les activités paramétrables
+        public bool EstParametrable { get; set; } = false;
+        public string? ModeleLibelle { get; set; } = null; // Template avec placeholders (ex: "Savoir compter jusqu'à {0} à l'envers")
+        public List<string>? NomsParametres { get; set; } = null; // Noms des paramètres (ex: ["nombre"])
     }
 }

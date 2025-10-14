@@ -29,6 +29,7 @@ export class ActivitesComponent {
   addLibelleCourt = new FormControl('');
   addLibelleLong = new FormControl('');
   addCategorieId = new FormControl('');
+  addEstParametrable = new FormControl(false);
 
   // Contrôles pour les regroupements
   addRegroupementLibelleCourt = new FormControl('');
@@ -40,6 +41,7 @@ export class ActivitesComponent {
   editLibelleLong = new FormControl('');
   editCategorieId = new FormControl('');
   editOrdre = new FormControl('');
+  editEstParametrable = new FormControl(false);
 
   constructor(private activiteService: ActiviteService, private categorieService: CategorieService) {
     this.load();
@@ -113,18 +115,25 @@ export class ActivitesComponent {
     this.editLibelleLong.setValue(activite.libelleLong);
     this.editCategorieId.setValue(activite.categorieId);
     this.editOrdre.setValue(String(activite.ordre));
+    this.editEstParametrable.setValue(activite.estParametrable || false);
     this.error.set(null);
   }
 
   save() {
     const sel = this.selected();
     if (sel) {
+      const estParametrable = this.editEstParametrable.value || false;
+      const libelleLong = this.editLibelleLong.value ?? '';
+
       const updated: Activite = {
         ...sel,
         libelleCourt: this.editLibelleCourt.value ?? '',
-        libelleLong: this.editLibelleLong.value ?? '',
+        libelleLong: libelleLong,
         categorieId: this.editCategorieId.value ?? '',
-        ordre: Number(this.editOrdre.value ?? 0)
+        ordre: Number(this.editOrdre.value ?? 0),
+        estParametrable: estParametrable,
+        modeleLibelle: estParametrable ? libelleLong : undefined,
+        nomsParametres: estParametrable ? this.extractParameterNames(libelleLong) : undefined
       };
       this.activiteService.update(updated).subscribe({
         next: () => { 
@@ -134,6 +143,21 @@ export class ActivitesComponent {
         error: () => this.error.set('Erreur lors de la modification')
       });
     }
+  }
+
+  // Extrait automatiquement les noms des paramètres à partir du modèle
+  private extractParameterNames(template: string): string[] | undefined {
+    if (!template) return undefined;
+    
+    const matches = template.match(/\{(\d+)\}/g);
+    if (!matches || matches.length === 0) return undefined;
+    
+    // Créer des noms génériques param0, param1, etc.
+    const paramCount = Math.max(...matches.map(match => 
+      parseInt(match.replace(/[{}]/g, ''))
+    )) + 1;
+    
+    return Array.from({length: paramCount}, (_, i) => `param${i}`);
   }
 
   addRegroupement() {
@@ -172,6 +196,8 @@ export class ActivitesComponent {
     const categorieId = this.addCategorieId.value ?? '';
 
     if (libelleCourt && libelleLong && categorieId) {
+      const estParametrable = this.addEstParametrable.value || false;
+
       const activite: Activite = {
         id: '',
         libelleCourt,
@@ -179,7 +205,10 @@ export class ActivitesComponent {
         categorieId,
         ordre: this.activitesIsolees().length + 1,
         estRegroupement: false,
-        parentId: null
+        parentId: null,
+        estParametrable: estParametrable,
+        modeleLibelle: estParametrable ? libelleLong : undefined,
+        nomsParametres: estParametrable ? this.extractParameterNames(libelleLong) : undefined
       };
 
       this.activiteService.add(activite).subscribe({
@@ -188,6 +217,7 @@ export class ActivitesComponent {
           this.addLibelleCourt.setValue('');
           this.addLibelleLong.setValue('');
           this.addCategorieId.setValue('');
+          this.addEstParametrable.setValue(false);
         },
         error: () => this.error.set("Erreur lors de l'ajout de l'activité")
       });

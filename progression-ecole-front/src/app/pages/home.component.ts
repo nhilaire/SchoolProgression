@@ -5,9 +5,10 @@ import { ApiService } from '../services/api.service';
 import { CategorieService } from '../services/categorie.service';
 import { Categorie } from '../models/categorie.model';
 import { ActiviteService } from '../services/activite.service';
-import { Activite } from '../models/activite.model';
+import { Activite, ActivitePersonnalisee } from '../models/activite.model';
 import { PeriodeService } from '../services/periode.service';
 import { EleveService, Eleve } from '../services/eleve.service';
+import { ActivitePersonnaliseeService } from '../services/activite-personnalisee.service';
 
 @Component({
   selector: 'app-home',
@@ -65,7 +66,7 @@ export class HomeComponent implements OnDestroy {
       next: () => {
         this.showNotification('Enregistrement réussi !', 'success');
         // Mettre à jour l'état sauvegardé et marquer comme sauvegardé
-        this.lastSavedState = { ...this.selectedActivites };
+        this.saveCurrentState();
         this.hasUnsavedChanges = false;
         this.resetAutoSaveTimer();
       },
@@ -105,7 +106,7 @@ export class HomeComponent implements OnDestroy {
     this.periodeService.save(data).subscribe({
       next: () => {
         this.showNotification('Sauvegarde automatique réussie', 'success');
-        this.lastSavedState = { ...this.selectedActivites };
+        this.saveCurrentState();
         this.hasUnsavedChanges = false;
         this.resetAutoSaveTimer();
       },
@@ -117,12 +118,25 @@ export class HomeComponent implements OnDestroy {
   }
 
   private markAsChanged(): void {
+    // Créer un état complet incluant les activités sélectionnées ET les paramètres
+    const currentState = {
+      selectedActivites: this.selectedActivites,
+      parametresEnCours: this.parametresEnCours
+    };
+    
     // Comparer l'état actuel avec le dernier état sauvegardé
-    const hasChanged = JSON.stringify(this.selectedActivites) !== JSON.stringify(this.lastSavedState);
+    const hasChanged = JSON.stringify(currentState) !== JSON.stringify(this.lastSavedState);
     if (hasChanged && !this.hasUnsavedChanges) {
       this.hasUnsavedChanges = true;
       this.resetAutoSaveTimer();
     }
+  }
+
+  private saveCurrentState(): void {
+    this.lastSavedState = {
+      selectedActivites: { ...this.selectedActivites },
+      parametresEnCours: JSON.parse(JSON.stringify(this.parametresEnCours))
+    };
   }
 
   // Method to be called when checkboxes change
@@ -145,8 +159,11 @@ export class HomeComponent implements OnDestroy {
       });
     }
     
+    // Charger les activités personnalisées pour cette période
+    this.loadActivitesPersonnalisees();
+    
     // Mettre à jour l'état sauvegardé et marquer comme non modifié
-    this.lastSavedState = { ...this.selectedActivites };
+    this.saveCurrentState();
     this.hasUnsavedChanges = false;
     
     // Reset du timer auto-save
@@ -167,15 +184,27 @@ export class HomeComponent implements OnDestroy {
   // Auto-save functionality
   private autoSaveTimer: any = null;
   private hasUnsavedChanges = false;
-  private lastSavedState: { [id: string]: boolean } = {};
+  private lastSavedState: {
+    selectedActivites: { [id: string]: boolean };
+    parametresEnCours: { [activiteId: string]: { [parametre: string]: string } };
+  } = {
+    selectedActivites: {},
+    parametresEnCours: {}
+  };
   private readonly AUTO_SAVE_DELAY = 5000; // 5 secondes
+
+  // Activités personnalisées
+  activitesPersonnalisees = signal<ActivitePersonnalisee[]>([]);
+
+  parametresEnCours: { [activiteId: string]: { [parametre: string]: string } } = {};
 
   constructor(
     private apiService: ApiService,
     private categorieService: CategorieService,
     private activiteService: ActiviteService,
     private periodeService: PeriodeService,
-    private eleveService: EleveService
+    private eleveService: EleveService,
+    private activitePersonnaliseeService: ActivitePersonnaliseeService
   ) {
       // Charger tous les élèves
       this.eleveService.getAll().subscribe({
@@ -221,7 +250,7 @@ export class HomeComponent implements OnDestroy {
       if (!this.selectedEleve()) {
         this.periodesActivites = [];
         this.selectedActivites = {};
-        this.lastSavedState = {};
+        this.saveCurrentState();
         this.hasUnsavedChanges = false;
         if (this.autoSaveTimer) {
           clearTimeout(this.autoSaveTimer);
@@ -237,7 +266,7 @@ export class HomeComponent implements OnDestroy {
         error: () => {
           this.selectedActivites = {};
           this.periodesActivites = [];
-          this.lastSavedState = {};
+          this.saveCurrentState();
           this.hasUnsavedChanges = false;
         }
       });
@@ -309,5 +338,95 @@ export class HomeComponent implements OnDestroy {
       case 'Grand': return '🟣';
       default: return '🟢';
     }
+  }
+
+  // Méthodes pour les activités paramétrables
+  getLibelleAvecParametres(activite: Activite): string {
+    if (!activite.estParametrable) {
+      return activite.libelleLong;
+    }
+
+    let libelle = activite.libelleLong; // Utiliser directement le libellé long comme modèle
+    const parametres = this.parametresEnCours[activite.id] || {};
+    
+    // Remplacer les placeholders par les valeurs saisies
+    Object.keys(parametres).forEach(key => {
+      const placeholder = `{${key}}`;
+      libelle = libelle.replace(placeholder, parametres[key] || `[${key}]`);
+    });
+
+    return libelle;
+  }
+
+  getParametreValue(activiteId: string, parametre: string): string {
+    if (!this.parametresEnCours[activiteId]) {
+      this.parametresEnCours[activiteId] = {};
+    }
+    return this.parametresEnCours[activiteId][parametre] || '';
+  }
+
+  setParametreValue(activiteId: string, parametre: string, value: string): void {
+    if (!this.parametresEnCours[activiteId]) {
+      this.parametresEnCours[activiteId] = {};
+    }
+    this.parametresEnCours[activiteId][parametre] = value;
+    this.onParametreChange(activiteId, parametre);
+  }
+
+  onParametreChange(activiteId: string, parametre: string): void {
+    // Sauvegarder l'activité personnalisée
+    this.saveActivitePersonnalisee(activiteId);
+    this.markAsChanged();
+  }
+
+  private saveActivitePersonnalisee(activiteId: string): void {
+    const hasEleve = !!this.selectedEleve();
+    const hasParametres = !!this.parametresEnCours[activiteId];
+    const hasParametresNonVides = hasParametres && Object.keys(this.parametresEnCours[activiteId]).length > 0;
+    
+    if (!hasEleve || !hasParametresNonVides) {
+      return;
+    }
+
+    const activitePersonnalisee: ActivitePersonnalisee = {
+      id: '',
+      eleveId: String(this.selectedEleve()),
+      activiteId: activiteId,
+      periode: this.selectedPeriode(),
+      valeursParametres: { ...this.parametresEnCours[activiteId] },
+      dateCreation: new Date()
+    };
+
+    this.activitePersonnaliseeService.save(activitePersonnalisee).subscribe({
+      next: (response) => {
+        // Sauvegarde réussie
+      },
+      error: (error) => {
+        console.error('Erreur lors de la sauvegarde de l\'activité personnalisée:', error);
+      }
+    });
+  }
+
+  private loadActivitesPersonnalisees(): void {
+    if (!this.selectedEleve()) return;
+
+    this.activitePersonnaliseeService.getByEleveAndPeriode(
+      String(this.selectedEleve()), 
+      this.selectedPeriode()
+    ).subscribe({
+      next: (activites) => {
+        this.activitesPersonnalisees.set(activites);
+        
+        // Charger les paramètres dans l'interface
+        this.parametresEnCours = {};
+        activites.forEach(act => {
+          this.parametresEnCours[act.activiteId] = { ...act.valeursParametres };
+        });
+      },
+      error: () => {
+        this.activitesPersonnalisees.set([]);
+        this.parametresEnCours = {};
+      }
+    });
   }
 }

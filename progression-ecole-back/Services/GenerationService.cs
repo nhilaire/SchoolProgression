@@ -16,19 +16,22 @@ namespace ProgressionEcole.Services
         private readonly EleveRepository _eleveRepo;
         private readonly ActiviteRepository _activiteRepo;
         private readonly PeriodeRepository _periodeRepo;
+        private readonly ActivitePersonnaliseeRepository _activitePersonnaliseeRepo;
 
-        public GenerationService(EleveRepository eleveRepo, ActiviteRepository activiteRepo, PeriodeRepository periodeRepo, IOptions<DataPathsConfig> config)
+        public GenerationService(EleveRepository eleveRepo, ActiviteRepository activiteRepo, PeriodeRepository periodeRepo, ActivitePersonnaliseeRepository activitePersonnaliseeRepo, IOptions<DataPathsConfig> config)
         {
             _eleveRepo = eleveRepo;
             _activiteRepo = activiteRepo;
             _periodeRepo = periodeRepo;
+            _activitePersonnaliseeRepo = activitePersonnaliseeRepo;
             var dataConfig = config.Value;
             _templatePath = Path.Combine(dataConfig.DataDirectory, "modele_{0}.docx");
         }
 
         public byte[] GenerateDocx(string periode)
         {
-            var eleves = _eleveRepo.GetAll().OrderBy(e => e.Nom).ThenBy(e => e.Prenom).ToList();
+            // Utiliser l'ordre défini dans le fichier eleves.json
+            var eleves = _eleveRepo.GetAll().ToList();
 
             var tempFile = Path.GetTempFileName() + ".docx";
             var finalPath  = string.Format(_templatePath, periode);
@@ -56,7 +59,7 @@ namespace ProgressionEcole.Services
                             .Select(id => _activiteRepo.GetById(id))
                             .Where(activite => activite != null && !activite.EstRegroupement) // Filtrer seulement les activités réelles
                             .OrderBy(activite => activite!.Ordre) // Trier par l'ordre défini dans le JSON
-                            .Select(activite => FormatActiviteLibelle(activite!))
+                            .Select(activite => FormatActiviteLibelle(activite!, eleve.Id, periode))
                             .Where(lib => !string.IsNullOrWhiteSpace(lib))
                             .ToList() ?? new List<string>();
 
@@ -81,12 +84,41 @@ namespace ProgressionEcole.Services
         }
 
         /// <summary>
-        /// Formate le libellé d'une activité, en excluant le contexte du regroupement
+        /// Formate le libellé d'une activité, en gérant les activités paramétrables
         /// </summary>
-        private string FormatActiviteLibelle(Activite activite)
+        private string FormatActiviteLibelle(Activite activite, string eleveId, string periode)
         {
-            // Retourner uniquement le libellé long de l'activité, sans le regroupement
+            if (!activite.EstParametrable)
+            {
+                // Activité normale
+                return activite.LibelleLong;
+            }
+            
+            // Activité paramétrable - chercher les valeurs personnalisées
+            var personnalisee = _activitePersonnaliseeRepo.GetByActiviteAndEleve(activite.Id, eleveId, periode);
+            
+            if (personnalisee != null && personnalisee.ValeursParametres.Any())
+            {
+                // Utiliser le LibelleLong comme template et remplacer les paramètres
+                return RemplaceParametres(activite.LibelleLong, personnalisee.ValeursParametres);
+            }
+            
+            // Fallback sur le libellé long si pas de personnalisation
             return activite.LibelleLong;
+        }
+
+        /// <summary>
+        /// Remplace les placeholders {param} par les valeurs saisies
+        /// </summary>
+        private string RemplaceParametres(string template, Dictionary<string, string> valeurs)
+        {
+            var result = template;
+            foreach (var param in valeurs)
+            {
+                var placeholder = $"{{{param.Key}}}";
+                result = result.Replace(placeholder, param.Value);
+            }
+            return result;
         }
 
         private void ReplaceText(Body body, string placeholder, string value)

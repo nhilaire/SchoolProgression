@@ -15,6 +15,7 @@ builder.Services.AddSingleton<EleveRepository>();
 builder.Services.AddSingleton<CategorieRepository>();
 builder.Services.AddSingleton<ActiviteRepository>();
 builder.Services.AddSingleton<PeriodeRepository>();
+builder.Services.AddSingleton<ActivitePersonnaliseeRepository>();
 builder.Services.AddSingleton<GenerationService>();
 
 

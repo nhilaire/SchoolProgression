@@ -429,4 +429,8 @@ export class HomeComponent implements OnDestroy {
       }
     });
   }
+
+  formatCategorieLibelle(libelle: string): string {
+    return libelle.replace(/-/g, '\n');
+  }
 }

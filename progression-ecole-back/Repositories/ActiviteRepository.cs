@@ -114,12 +114,17 @@ namespace ProgressionEcole.Repositories
             }
         }
 
+        private static readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
         private void Load()
         {
             if (File.Exists(_filePath))
             {
                 var json = File.ReadAllText(_filePath);
-                _activites = JsonSerializer.Deserialize<List<Activite>>(json) ?? new();
+                _activites = JsonSerializer.Deserialize<List<Activite>>(json, _jsonOptions) ?? new();
             }
         }
 

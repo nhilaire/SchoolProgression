@@ -418,3 +418,5 @@ FodyWeavers.xsd
 *.msp
 /progression-ecole-front/.vscode
 /progression-ecole-front/package-lock.json
+/.claude
+/docs

@@ -3,6 +3,7 @@ namespace ProgressionEcole.Models
     public class Activite
     {
         public string Id { get; set; }
+        public string LibelleTresCourt { get; set; } = string.Empty; // 1-2 mots pour affichage compact dans les cards
         public string LibelleCourt { get; set; } = string.Empty;
         public string LibelleLong { get; set; } = string.Empty;
         public string CategorieId { get; set; }

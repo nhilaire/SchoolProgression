@@ -26,17 +26,20 @@ export class ActivitesComponent {
   addingToRegroupement = signal<string | null>(null);
 
   // Contrôles pour les activités isolées
+  addLibelleTresCourt = new FormControl('');
   addLibelleCourt = new FormControl('');
   addLibelleLong = new FormControl('');
   addCategorieId = new FormControl('');
   addEstParametrable = new FormControl(false);
 
   // Contrôles pour les regroupements
+  addRegroupementLibelleTresCourt = new FormControl('');
   addRegroupementLibelleCourt = new FormControl('');
   addRegroupementLibelleLong = new FormControl('');
   addRegroupementCategorieId = new FormControl('');
 
   // Contrôles d'édition
+  editLibelleTresCourt = new FormControl('');
   editLibelleCourt = new FormControl('');
   editLibelleLong = new FormControl('');
   editCategorieId = new FormControl('');
@@ -111,6 +114,7 @@ export class ActivitesComponent {
 
   select(activite: Activite) {
     this.selected.set({ ...activite });
+    this.editLibelleTresCourt.setValue(activite.libelleTresCourt || '');
     this.editLibelleCourt.setValue(activite.libelleCourt);
     this.editLibelleLong.setValue(activite.libelleLong);
     this.editCategorieId.setValue(activite.categorieId);
@@ -127,6 +131,7 @@ export class ActivitesComponent {
 
       const updated: Activite = {
         ...sel,
+        libelleTresCourt: this.editLibelleTresCourt.value ?? '',
         libelleCourt: this.editLibelleCourt.value ?? '',
         libelleLong: libelleLong,
         categorieId: this.editCategorieId.value ?? '',
@@ -136,9 +141,9 @@ export class ActivitesComponent {
         nomsParametres: estParametrable ? this.extractParameterNames(libelleLong) : undefined
       };
       this.activiteService.update(updated).subscribe({
-        next: () => { 
-          this.load(); 
-          this.selected.set(null); 
+        next: () => {
+          this.load();
+          this.selected.set(null);
         },
         error: () => this.error.set('Erreur lors de la modification')
       });
@@ -161,6 +166,7 @@ export class ActivitesComponent {
   }
 
   addRegroupement() {
+    const libelleTresCourt = this.addRegroupementLibelleTresCourt.value ?? '';
     const libelleCourt = this.addRegroupementLibelleCourt.value ?? '';
     const libelleLong = this.addRegroupementLibelleLong.value ?? '';
     const categorieId = this.addRegroupementCategorieId.value ?? '';
@@ -168,6 +174,7 @@ export class ActivitesComponent {
     if (libelleCourt && libelleLong && categorieId) {
       const regroupement: Activite = {
         id: '',
+        libelleTresCourt: libelleTresCourt || libelleCourt,
         libelleCourt,
         libelleLong,
         categorieId,
@@ -179,6 +186,7 @@ export class ActivitesComponent {
       this.activiteService.createRegroupement(regroupement).subscribe({
         next: () => {
           this.load();
+          this.addRegroupementLibelleTresCourt.setValue('');
           this.addRegroupementLibelleCourt.setValue('');
           this.addRegroupementLibelleLong.setValue('');
           this.addRegroupementCategorieId.setValue('');
@@ -191,6 +199,7 @@ export class ActivitesComponent {
   }
 
   addActiviteIsolee() {
+    const libelleTresCourt = this.addLibelleTresCourt.value ?? '';
     const libelleCourt = this.addLibelleCourt.value ?? '';
     const libelleLong = this.addLibelleLong.value ?? '';
     const categorieId = this.addCategorieId.value ?? '';
@@ -200,6 +209,7 @@ export class ActivitesComponent {
 
       const activite: Activite = {
         id: '',
+        libelleTresCourt: libelleTresCourt || libelleCourt,
         libelleCourt,
         libelleLong,
         categorieId,
@@ -214,6 +224,7 @@ export class ActivitesComponent {
       this.activiteService.add(activite).subscribe({
         next: () => {
           this.load();
+          this.addLibelleTresCourt.setValue('');
           this.addLibelleCourt.setValue('');
           this.addLibelleLong.setValue('');
           this.addCategorieId.setValue('');
@@ -228,11 +239,13 @@ export class ActivitesComponent {
 
   startAddingToRegroupement(regroupementId: string) {
     this.addingToRegroupement.set(regroupementId);
+    this.addLibelleTresCourt.setValue('');
     this.addLibelleCourt.setValue('');
     this.addLibelleLong.setValue('');
   }
 
   addActiviteToRegroupement(parentId: string) {
+    const libelleTresCourt = this.addLibelleTresCourt.value ?? '';
     const libelleCourt = this.addLibelleCourt.value ?? '';
     const libelleLong = this.addLibelleLong.value ?? '';
 
@@ -243,6 +256,7 @@ export class ActivitesComponent {
       const enfantsActuels = this.getEnfants(parentId);
       const activite: Activite = {
         id: '',
+        libelleTresCourt: libelleTresCourt || libelleCourt,
         libelleCourt,
         libelleLong,
         categorieId: regroupement.categorieId, // Même catégorie que le parent
@@ -255,6 +269,7 @@ export class ActivitesComponent {
         next: () => {
           this.loadEnfants(parentId);
           this.addingToRegroupement.set(null);
+          this.addLibelleTresCourt.setValue('');
           this.addLibelleCourt.setValue('');
           this.addLibelleLong.setValue('');
         },
@@ -267,6 +282,7 @@ export class ActivitesComponent {
 
   cancelAddingToRegroupement() {
     this.addingToRegroupement.set(null);
+    this.addLibelleTresCourt.setValue('');
     this.addLibelleCourt.setValue('');
     this.addLibelleLong.setValue('');
   }

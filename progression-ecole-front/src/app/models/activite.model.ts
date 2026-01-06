@@ -1,5 +1,6 @@
 export interface Activite {
   id: string;
+  libelleTresCourt: string;
   libelleCourt: string;
   libelleLong: string;
   categorieId: string;

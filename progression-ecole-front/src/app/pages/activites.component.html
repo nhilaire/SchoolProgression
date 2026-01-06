@@ -21,6 +21,7 @@
               <div class="drag-handle" cdkDragHandle title="Glisser pour réorganiser le regroupement">⋮⋮</div>
               @if (selected() && selected()?.id === element.id) {
                 <div class="edit-form">
+                  <input [formControl]="editLibelleTresCourt" placeholder="Libellé très court (1-2 mots)" />
                   <input [formControl]="editLibelleCourt" placeholder="Libellé court du regroupement" />
                   <input [formControl]="editLibelleLong" placeholder="Libellé long du regroupement" />
                   <select [formControl]="editCategorieId">
@@ -57,6 +58,7 @@
                   @if (selected() && selected()?.id === enfant.id) {
                     <div class="edit-form">
                       <span class="indent">└─</span>
+                      <input [formControl]="editLibelleTresCourt" placeholder="Très court (1-2 mots)" />
                       <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
                       <input [formControl]="editLibelleLong" placeholder="Libellé long" />
                       <button class="btn-save" (click)="save()">Enregistrer</button>
@@ -80,6 +82,7 @@
               @if (addingToRegroupement() === element.id) {
                 <div class="add-activite-form">
                   <span class="indent">└─</span>
+                  <input [formControl]="addLibelleTresCourt" placeholder="Très court (1-2 mots)" />
                   <input [formControl]="addLibelleCourt" placeholder="Libellé court" />
                   <input [formControl]="addLibelleLong" placeholder="Libellé long" />
                   <button class="btn-save" (click)="addActiviteToRegroupement(element.id)">Ajouter</button>
@@ -95,6 +98,7 @@
                cdkDrag [cdkDragDisabled]="selected()?.id === element.id" (cdkDragStarted)="onDragStarted($event)">
             @if (selected() && selected()?.id === element.id) {
               <div class="edit-form">
+                <input [formControl]="editLibelleTresCourt" placeholder="Libellé très court (1-2 mots)" />
                 <input [formControl]="editLibelleCourt" placeholder="Libellé court" />
                 <input [formControl]="editLibelleLong" placeholder="Libellé long" />
                 <select [formControl]="editCategorieId">
@@ -139,6 +143,7 @@
     <div class="add-regroupement">
       <h4>Nouveau regroupement</h4>
       <div class="form-row">
+        <input [formControl]="addRegroupementLibelleTresCourt" placeholder="Très court (1-2 mots)" />
         <input [formControl]="addRegroupementLibelleCourt" placeholder="Libellé court du regroupement" />
         <input [formControl]="addRegroupementLibelleLong" placeholder="Libellé long du regroupement" />
         <select [formControl]="addRegroupementCategorieId">
@@ -155,6 +160,7 @@
     <div class="add-activite-isolee">
       <h4>Nouvelle activité isolée</h4>
       <div class="form-row">
+        <input [formControl]="addLibelleTresCourt" placeholder="Très court (1-2 mots)" />
         <input [formControl]="addLibelleCourt" placeholder="Libellé court" />
         <input [formControl]="addLibelleLong" placeholder="Libellé long" />
         <select [formControl]="addCategorieId">

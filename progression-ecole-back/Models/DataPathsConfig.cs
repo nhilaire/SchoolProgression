@@ -7,5 +7,6 @@ namespace ProgressionEcole.Models
         public string CategoriesFile { get; set; } = "categories.json";
         public string ActivitesFile { get; set; } = "activites.json";
         public string PeriodesFile { get; set; } = "periodes.json";
+        public string DefinitionPeriodesFile { get; set; } = "definition-periodes.json";
     }
 }

@@ -1,0 +1,92 @@
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.description {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.periodes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.periodes-table th, .periodes-table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.periodes-table th {
+  background: #e0e0e0;
+}
+
+.periodes-table input[type="date"] {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.action-btn {
+  margin-right: 0.5rem;
+}
+
+.action-btn:last-child {
+  margin-right: 0;
+}
+
+.save-btn {
+  background: #28a745;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+.cancel-btn {
+  background: #6c757d;
+}
+
+.cancel-btn:hover {
+  background: #5a6268;
+}
+
+.error {
+  color: #ff4136;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  padding: 0.75rem;
+  background: #ffebee;
+  border-radius: 5px;
+}
+
+.success {
+  color: #28a745;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  padding: 0.75rem;
+  background: #e8f5e9;
+  border-radius: 5px;
+}

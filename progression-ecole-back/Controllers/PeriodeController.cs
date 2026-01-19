@@ -26,8 +26,13 @@ namespace ProgressionEcole.Controllers
         }
 
         [HttpGet]
+        public ActionResult<List<PeriodeActivites>> GetAll()
+        {
+            return Ok(_repo.GetAll());
+        }
+
         [HttpGet("eleve/{eleveId}")]
-        public ActionResult<List<PeriodeActivites>> GetAll(string eleveId)
+        public ActionResult<List<PeriodeActivites>> GetByEleve(string eleveId)
         {
             var all = _repo.GetAll().Where(x => x.EleveId == eleveId).ToList();
             return Ok(all);

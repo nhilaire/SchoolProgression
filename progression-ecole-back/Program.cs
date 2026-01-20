@@ -16,6 +16,7 @@ builder.Services.AddSingleton<CategorieRepository>();
 builder.Services.AddSingleton<ActiviteRepository>();
 builder.Services.AddSingleton<PeriodeRepository>();
 builder.Services.AddSingleton<ActivitePersonnaliseeRepository>();
+builder.Services.AddSingleton<ActiviteAlphabetRepository>();
 builder.Services.AddSingleton<DefinitionPeriodeRepository>();
 builder.Services.AddSingleton<GenerationService>();
 

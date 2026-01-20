@@ -9,6 +9,7 @@ import { Activite, ActivitePersonnalisee } from '../models/activite.model';
 import { PeriodeService } from '../services/periode.service';
 import { EleveService, Eleve } from '../services/eleve.service';
 import { ActivitePersonnaliseeService } from '../services/activite-personnalisee.service';
+import { DefinitionPeriodeService } from '../services/definition-periode.service';
 
 @Component({
   selector: 'app-home',
@@ -204,8 +205,19 @@ export class HomeComponent implements OnDestroy {
     private activiteService: ActiviteService,
     private periodeService: PeriodeService,
     private eleveService: EleveService,
-    private activitePersonnaliseeService: ActivitePersonnaliseeService
+    private activitePersonnaliseeService: ActivitePersonnaliseeService,
+    private definitionPeriodeService: DefinitionPeriodeService
   ) {
+      // Charger la période courante en premier
+      this.definitionPeriodeService.getCurrent().subscribe({
+        next: (periode) => {
+          this.selectedPeriode.set(periode.nom);
+        },
+        error: () => {
+          // Garder P1 par défaut si erreur
+        }
+      });
+
       // Charger tous les élèves
       this.eleveService.getAll().subscribe({
         next: (eleves) => this.eleves.set(eleves),

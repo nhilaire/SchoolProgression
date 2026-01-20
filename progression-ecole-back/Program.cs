@@ -69,7 +69,12 @@ if (!Directory.Exists(dataConfig.DataDirectory))
     }
 }
 
-builder.Services.AddControllers(); // Ajout du support des controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Accepter les noms de propriétés en camelCase depuis le frontend
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 
 var app = builder.Build();
 

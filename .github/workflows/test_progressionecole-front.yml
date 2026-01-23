@@ -54,6 +54,13 @@ jobs:
             return await coredemo.getIDToken()
           result-encoding: string
 
+      - name: Debug - Check token length
+        run: |
+          TOKEN="${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}"
+          echo "Token length: ${#TOKEN}"
+          echo "Token starts with: ${TOKEN:0:10}..."
+        shell: bash
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

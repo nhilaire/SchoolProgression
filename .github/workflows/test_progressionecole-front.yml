@@ -42,6 +42,11 @@ jobs:
           API_URL: ${{ secrets.API_URL }}
         shell: bash
 
+      - name: Inject environment name in Angular environment.prod.ts
+        run: |
+          sed -i "s|environmentName: ''|environmentName: 'Test'|g" progression-ecole-front/src/environments/environment.prod.ts
+        shell: bash
+
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
 

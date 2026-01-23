@@ -38,6 +38,17 @@
   color: #2ecc40;
   text-decoration: underline;
 }
+.env-badge {
+  background: #ff6b6b;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  align-self: center;
+  margin-left: 0.5rem;
+}
 main {
   min-height: 60vh;
 }

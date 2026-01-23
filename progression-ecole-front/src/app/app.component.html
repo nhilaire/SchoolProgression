@@ -4,6 +4,9 @@
   <a routerLink="/categories" routerLinkActive="active">Catégories</a>
   <a routerLink="/activites" routerLinkActive="active">Activités</a>
   <a routerLink="/periodes" routerLinkActive="active">Périodes</a>
+  @if (environmentName && environmentName !== 'Prod') {
+    <span class="env-badge">{{ environmentName }}</span>
+  }
 </nav>
 <main>
   <router-outlet></router-outlet>

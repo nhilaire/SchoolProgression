@@ -45,6 +45,7 @@ jobs:
           app_location: "./progression-ecole-front"
           output_location: "dist/progression-ecole-front/browser"
           skip_api_build: true
+          app_build_command: "npm run build -- --configuration production"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

@@ -27,23 +27,13 @@ jobs:
           submodules: true
           lfs: false
 
-      - name: Inject API_URL in Angular environment.ts
-        run: |
-          sed -i "s|apiUrl: ''|apiUrl: '${API_URL}'|g" progression-ecole-front/src/environments/environment.ts
-        env:
-          API_URL: ${{ secrets.API_URL }}
-        shell: bash
-
-      - name: Inject API_URL in Angular environment.prod.ts
+      - name: Inject values in Angular environment.prod.ts
         run: |
           sed -i "s|apiUrl: ''|apiUrl: '${API_URL}'|g" progression-ecole-front/src/environments/environment.prod.ts
+          sed -i "s|environmentName: ''|environmentName: 'Test'|g" progression-ecole-front/src/environments/environment.prod.ts
+          cat progression-ecole-front/src/environments/environment.prod.ts
         env:
           API_URL: ${{ secrets.API_URL }}
-        shell: bash
-
-      - name: Inject environment name in Angular environment.prod.ts
-        run: |
-          sed -i "s|environmentName: ''|environmentName: 'Test'|g" progression-ecole-front/src/environments/environment.prod.ts
         shell: bash
 
       - name: Build And Deploy

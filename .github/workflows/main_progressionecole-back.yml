@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - progressionecole-back
+name: Build and deploy ASP.Net Core app to Azure Web App - progressionecole-back - Production
 
 on:
   push:
@@ -38,6 +38,7 @@ jobs:
   deploy:
     runs-on: windows-latest
     needs: build
+    environment: Prod
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
@@ -49,9 +50,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7DCE0C96E0D64DA5A6FF11A89434A14A }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9A95A448314E4CF3889EF87C655250AE }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_41D9F920174D402CBEE74A7623DB328F }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
       - name: Affiche la valeur de FRONT_URL
         run: echo "FRONT_URL=$FRONT_URL"
         env:

@@ -20,7 +20,6 @@ jobs:
     env:
       NODE_VERSION: '20.19.1'
     permissions:
-      id-token: write
       contents: read
     steps:
       - uses: actions/checkout@v3
@@ -47,26 +46,6 @@ jobs:
           sed -i "s|environmentName: ''|environmentName: 'Test'|g" progression-ecole-front/src/environments/environment.prod.ts
         shell: bash
 
-      - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
-
-      - name: Get Id Token
-        uses: actions/github-script@v6
-        id: idtoken
-        with:
-          script: |
-            const coredemo = require('@actions/core')
-            return await coredemo.getIDToken()
-          result-encoding: string
-
-      - name: Debug - Check token length
-        run: |
-          echo "Token length: ${#TOKEN}"
-          echo "Token first 10 chars: ${TOKEN:0:10}..."
-        env:
-          TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-        shell: bash
-
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -75,7 +54,7 @@ jobs:
           action: "upload"
           app_location: "./progression-ecole-front"
           output_location: "dist/progression-ecole-front/browser"
-          github_id_token: ${{ steps.idtoken.outputs.result }}
+          skip_api_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

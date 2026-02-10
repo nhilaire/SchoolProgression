@@ -44,8 +44,8 @@ export class HomeComponent implements OnDestroy {
   // Trouver toutes les périodes associées à l'activité
   const periodes = this.periodesActivites.filter(p => p.activiteIds.includes(id)).map(p => p.periode);
   if (periodes.length === 0) return null;
-  // Trier selon l'ordre P1 < P2 < ... < P5
-  const ordre = ['P1', 'P2', 'P3', 'P4', 'P5'];
+  // Trier selon l'ordre N-1 < P1 < P2 < ... < P5
+  const ordre = ['N-1', 'P1', 'P2', 'P3', 'P4', 'P5'];
   periodes.sort((a, b) => ordre.indexOf(a) - ordre.indexOf(b));
   return periodes[periodes.length - 1];
   }

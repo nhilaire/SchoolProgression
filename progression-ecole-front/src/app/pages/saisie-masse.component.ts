@@ -8,7 +8,7 @@ import { Categorie } from '../models/categorie.model';
 import { PeriodeService, PeriodeActivites } from '../services/periode.service';
 import { forkJoin } from 'rxjs';
 
-const PERIODES = ['P1', 'P2', 'P3', 'P4', 'P5'];
+const PERIODES = ['P1', 'P2', 'P3', 'P4', 'P5', 'N-1'];
 const CLASSE_ORDER: Record<string, number> = { 'Petit': 0, 'Moyen': 1, 'Grand': 2 };
 
 interface TableRow {
@@ -133,6 +133,7 @@ interface TableRow {
     .periode-P3 { background: #ff69b4; }
     .periode-P4 { background: #ff8c00; }
     .periode-P5 { background: #8a2be2; }
+    .periode-N-1 { background: #ffd600; color: #333; }
 
     .categorie-row td {
       font-weight: 600;

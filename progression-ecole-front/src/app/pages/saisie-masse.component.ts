@@ -120,8 +120,11 @@ interface TableRow {
     }
     .activite-table th, .activite-table td {
       border: 1px solid #dee2e6;
-      padding: 0.1rem 0.5rem;
-      line-height: 1.2;
+      padding: 0.2rem 0.5rem;
+    }
+    .activite-table tbody tr:hover .activite-label {
+      font-weight: 700;
+      background: #fff3cd;
     }
     .activite-col { text-align: left; }
     .periode-col { text-align: center; width: 50px; color: #fff; }

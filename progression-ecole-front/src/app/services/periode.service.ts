@@ -17,6 +17,10 @@ export class PeriodeService {
   getAll(eleveId: string): Observable<PeriodeActivites[]> {
     return this.http.get<PeriodeActivites[]>(`${this.baseUrl}/eleve/${eleveId}`);
   }
+
+  getAllPeriodeActivites(): Observable<PeriodeActivites[]> {
+    return this.http.get<PeriodeActivites[]>(this.baseUrl);
+  }
   private baseUrl = environment.apiUrl + '/periode';
 
   constructor(private http: HttpClient) {}

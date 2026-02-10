@@ -43,7 +43,7 @@ interface TableRow {
               <tr>
                 <th class="activite-col">Activite</th>
                 @for (p of periodes; track p) {
-                  <th class="periode-col">{{ p }}</th>
+                  <th class="periode-col" [ngClass]="'periode-' + p">{{ p }}</th>
                 }
               </tr>
             </thead>
@@ -124,7 +124,12 @@ interface TableRow {
       line-height: 1.2;
     }
     .activite-col { text-align: left; }
-    .periode-col { text-align: center; width: 50px; }
+    .periode-col { text-align: center; width: 50px; color: #fff; }
+    .periode-P1 { background: #28a745; }
+    .periode-P2 { background: #007bff; }
+    .periode-P3 { background: #ff69b4; }
+    .periode-P4 { background: #ff8c00; }
+    .periode-P5 { background: #8a2be2; }
 
     .categorie-row td {
       font-weight: 600;

@@ -15,6 +15,15 @@ namespace ProgressionEcole.Controllers
             _repo = repo;
         }
 
+        [HttpGet("eleve/{eleveId}")]
+        public ActionResult<List<ActivitePersonnalisee>> GetByEleve(string eleveId)
+        {
+            var activites = _repo.GetAll()
+                .Where(a => a.EleveId == eleveId)
+                .ToList();
+            return Ok(activites);
+        }
+
         [HttpGet("eleve/{eleveId}/periode/{periode}")]
         public ActionResult<List<ActivitePersonnalisee>> GetByEleveAndPeriode(string eleveId, string periode)
         {

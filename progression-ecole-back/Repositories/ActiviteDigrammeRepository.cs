@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using ProgressionEcole.Models;
+using ProgressionEcole.Services;
 
 namespace ProgressionEcole.Repositories
 {
@@ -106,6 +107,7 @@ namespace ProgressionEcole.Repositories
             try
             {
                 var json = JsonSerializer.Serialize(_activitesDigramme, new JsonSerializerOptions { WriteIndented = true });
+                FileBackupHelper.CreateBackup(_filePath);
                 File.WriteAllText(_filePath, json);
             }
             catch (Exception ex)

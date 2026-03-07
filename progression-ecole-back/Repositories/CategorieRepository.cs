@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using ProgressionEcole.Models;
+using ProgressionEcole.Services;
 
 namespace ProgressionEcole.Repositories
 {
@@ -89,6 +90,7 @@ namespace ProgressionEcole.Repositories
         {
             var json = JsonSerializer.Serialize(_categories);
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
+            FileBackupHelper.CreateBackup(_filePath);
             File.WriteAllText(_filePath, json);
         }
     }

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using ProgressionEcole.Models;
+using ProgressionEcole.Services;
 
 namespace ProgressionEcole.Repositories
 {
@@ -132,6 +133,7 @@ namespace ProgressionEcole.Repositories
         {
             var json = JsonSerializer.Serialize(_activites);
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
+            FileBackupHelper.CreateBackup(_filePath);
             File.WriteAllText(_filePath, json);
         }
     }
